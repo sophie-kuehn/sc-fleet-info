@@ -184,6 +184,8 @@ $(function () {
             imageBox.css('height', '110px');
 
             let infoBox = $('<ul></ul>');
+            infoBox.css('margin', '0');
+            infoBox.css('padding', '0');
             let infoTemplate = $('<li></li>');
             infoTemplate.css('border-top', '1px solid rgb(29, 45, 66)');
             infoTemplate.css('padding', '3px 0');
