@@ -210,7 +210,7 @@ $(function () {
 
             if (pledge.insurance_type == INSURANCE_TYPE_LTI) {
                 infoBox.append(infoTemplate.clone().text("Life Time Insurance"));
-            } else {
+            } else if (pledge.insurance_type != null) {
                 infoBox.append(infoTemplate.clone().text(pledge.insurance_duration + " Month/s Insurance"));
             }
 
