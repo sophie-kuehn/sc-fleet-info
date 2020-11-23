@@ -17,6 +17,7 @@ $(function () {
         'CRSD': ['Crusader Industries', 'Crusader'],
         'DRAK': ['Drake Interplanetary', 'Drake'],
         'ESPERIA': ['Esperia'],
+        'ESPR': ['Esperia'],
         'GRIN': ['Greycat Industrial', 'Greycat'],
         'KRGR': ['Kruger Intergalactic', 'Kruger'],
         'MISC': ['MISC', 'Musashi Industrial & Starflight Concern', 'M.I.S.C.'],
