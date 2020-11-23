@@ -165,6 +165,7 @@ $(function () {
     };
 
     const renderFleet = function(fleetList) {
+        fleetList.empty();
         $.each(pledges, function(index, pledge) {
             console.log(pledge);
 
@@ -228,11 +229,17 @@ $(function () {
         });
     };
 
+    let dataLoaded = false;
     const loadData = function(page, callback) {
+        if (dataLoaded) return callback();
+
         const url = '/account/pledges?page=' + page;
         const $page = $('<div>');
         $page.load(url + ' .page-wrapper', function (response, status) {
-            if ($('.list-items .empy-list', this).length > 0) return callback();
+            if ($('.list-items .empy-list', this).length > 0) {
+                dataLoaded = true;
+                return callback();
+            }
             processPledges(this);
             loadData(page+1, callback);
         });
