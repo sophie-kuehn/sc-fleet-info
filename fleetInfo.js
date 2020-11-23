@@ -175,7 +175,7 @@ $(function () {
             imageBox.css('background-size', 'cover');
             imageBox.css('background-position', 'center');
             imageBox.css('background-repeat', 'no-repeat');
-            imageBox.css('height', '100px');
+            imageBox.css('height', '110px');
 
             let infoBox = $('<ul></ul>');
             let infoTemplate = $('<li></li>');
@@ -223,7 +223,7 @@ $(function () {
             inner.append(infoBox);
 
             let newEntry = $('<div></div>');
-            newEntry.css('width', '20%');
+            newEntry.css('width', '25%');
             newEntry.css('position', 'relative');
             newEntry.append(inner);
             fleetList.append(newEntry);
@@ -260,7 +260,7 @@ $(function () {
         fleetList.css('display', 'flex');
         fleetList.css('flex-wrap', 'wrap');
         fleetList.css('color', '#bdced4');
-        fleetList.css('font-size', '0.6em');
+        fleetList.css('font-size', '0.8em');
         $('.inner-content').append(fleetList);
 
         loadData(1, function(){
@@ -276,7 +276,7 @@ $(function () {
         newNav.find('.bg').text('MY FLEET');
         newNav.find('a').attr('href', 'javascript:void(0)');
         newNav.find('a').click(renderFleetPage);
-        $('div.sidenav ul').before(newNav);
+        $('div.sidenav ul').prepend(newNav);
     }
 });
 
