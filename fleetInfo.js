@@ -61,38 +61,44 @@ $(function () {
         $('.list-items li', body).each((index, el) => {
             const $pledge = $(el);
 
-            // game package?
             let gamePackage = false;
+            let insurances = {};
+
             $pledge.find('.without-images .item .title').each((i, elBonus) => {
-                const bonus = $(elBonus).text().trim();
+                let bonus = $(elBonus).text().trim();
+
                 if (/Star\sCitizen\sDigital\sDownload/i.test(bonus)) {
                     gamePackage = true;
+
+                } else if (/Lifetime\s+Insurance/i.test(bonus)) {
+                    insurances.lti = true;
+
+                } else if (/IAE\s+Insurance/i.test(bonus)) {
+                    insurances.iae = true;
+
+                } else {
+                    let insuranceRegexResult = /(\d+)(\s+|-)Months?\s+Insurance/i.exec(bonus);
+                    if (insuranceRegexResult !== null && insuranceRegexResult[1]) {
+                        let duration = parseInt(insuranceRegexResult[1]);
+                        if (duration > 0) insurances.monthly = duration;
+                    }
                 }
             });
 
             let insuranceType = null;
             let insuranceDuration = null;
 
-            // compute the Insurance type of the pledge
-            $pledge.find('.without-images .item .title').each((i, elBonus) => {
-                const bonus = $(elBonus).text().trim();
-
-                if (/Lifetime\s+Insurance/i.test(bonus)) {
-                    insuranceType = INSURANCE_TYPE_LTI;
-                } else if (/IAE\s+Insurance/i.test(bonus)) {
-                    insuranceType = INSURANCE_TYPE_IAE;
-                } else {
-                    const insuranceRegexResult = /(\d+)(\s+|-)Months?\s+Insurance/i.exec(bonus);
-
-                    if (insuranceRegexResult !== null && insuranceRegexResult[1]) {
-                        insuranceDuration = parseInt(insuranceRegexResult[1]);
-
-                        if (insuranceDuration > 0) {
-                            insuranceType = INSURANCE_TYPE_MONTHLY;
-                        }
-                    }
-                }
-            });
+            if (insurances.lti != undefined) {
+                insuranceType = INSURANCE_TYPE_LTI;
+            }
+            else if (insurances.iae != undefined) {
+                insuranceType = INSURANCE_TYPE_IAE;
+                insuranceDuration = 120;
+            }
+            else if (insurances.monthly != undefined) {
+                insuranceType = INSURANCE_TYPE_MONTHLY;
+                insuranceDuration = insurances.monthly;
+            }
 
             // browse the ships that are in "Also contains" part
             $pledge.find('.without-images .item .title').each((i, elBonus) => {
