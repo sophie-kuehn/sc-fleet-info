@@ -10,7 +10,7 @@ On this page, all vehicles contained in packages are displayed with some info.
 
 WIP prototype, so it's quite dirty. Expect bugs.
 
-### Howto use
+### How to use
 
 There is no dedicated browser extension yet.
 
@@ -19,6 +19,8 @@ contents of fleetInfo.js on "https://robertsspaceindustries.com/account" and its
 
 I use [https://addons.mozilla.org/de/firefox/addon/codeinjector](https://addons.mozilla.org/de/firefox/addon/codeinjector)
 ([https://github.com/Lor-Saba/Code-Injector](https://github.com/Lor-Saba/Code-Injector))
+
+It's also available for Chrome.
 
 ![example](example_use.jpg)
 
