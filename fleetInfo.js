@@ -28,7 +28,7 @@ $(function () {
         'XIAN': ['Xi\'an'],
     };
 
-    const createPledge = function($pledge, name, manufacturer, insuranceType, insuranceDuration, gamePackage, image) {
+    const createPledge = function($pledge, name, model, manufacturer, insuranceType, insuranceDuration, gamePackage, image) {
         if (image == undefined) {
             image = $('div.image', $pledge).css('background-image');
         }
@@ -40,19 +40,20 @@ $(function () {
             package_id: $('.js-pledge-id', $pledge).val(),
             pledge: $('.js-pledge-name', $pledge).val(),
             image: image,
-            gamePackage: gamePackage
+            gamePackage: gamePackage,
+            name: name
         };
 
         let manufacturerNames = _manufacturerShortMap[manufacturer] || [manufacturer];
         pledge.manufacturer = manufacturerNames[0];
 
         $.each(manufacturerNames, function(mi, manufacturerName) {
-            name = name.replace(new RegExp(manufacturerName, 'gi'), '');
+            model = model.replace(new RegExp(manufacturerName, 'gi'), '');
         });
 
-        name = name.replace(/\-/gi, '').trim();
-        pledge.name = name;
-        pledge.shortName = name.split(' ')[0];
+        model = model.replace(/\-/gi, '').trim();
+        pledge.model = model;
+        pledge.shortModel = model.split(' ')[0];
 
         return pledge;
     };
@@ -108,6 +109,7 @@ $(function () {
                     const shipInfoRegexResult = /(Origin)\s+(G12[ar])/i.exec(bonus);
                     const pledge = createPledge(
                         $pledge,
+                        '',
                         shipInfoRegexResult[2],
                         shipInfoRegexResult[1],
                         insuranceType,
@@ -139,6 +141,7 @@ $(function () {
                         // Found the ship "Greycat PTV" from "Greycat Industrial"
                         const pledge = createPledge(
                             $pledge,
+                            '',
                             $('.title', $shipInfo).text(),
                             $('.liner span', $shipInfo).text(),
                             insuranceType,
@@ -158,6 +161,7 @@ $(function () {
 
                 const pledge = createPledge(
                     $pledge,
+                    $('.custom-name', $shipInfo).text(),
                     $('.title', $shipInfo).text(),
                     $('.liner span', $shipInfo).text(),
                     insuranceType,
@@ -190,14 +194,31 @@ $(function () {
             infoTemplate.css('border-top', '1px solid rgb(29, 45, 66)');
             infoTemplate.css('padding', '3px 0');
 
-            let nameBox = infoTemplate.clone();
-            nameBox.css('border-top', 'none');
-            nameBox.css('padding', '3px 0 0 0');
-            nameBox.css('font-size', '1.2em');
-            nameBox.css('color', '#fff');
-            nameBox.text(pledge.name);
-            infoBox.append(nameBox);
+            if (pledge.name.length > 0) {
+                let nameBox = infoTemplate.clone();
+                nameBox.css('border-top', 'none');
+                nameBox.css('padding', '3px 0 0 0');
+                nameBox.css('font-size', '1.2em');
+                nameBox.css('color', '#fff');
+                nameBox.text(pledge.name);
+                infoBox.append(nameBox);
+            }
 
+            let modelBox = infoTemplate.clone();
+            modelBox.css('border-top', 'none');
+            modelBox.css('padding', '3px 0 0 0');
+            
+            if (pledge.name.length > 0) {
+                modelBox.css('font-size', '0.9em');
+            } else {
+                modelBox.css('padding', '3px 0 0 0');
+                modelBox.css('font-size', '1.2em');
+            }
+            
+            modelBox.css('color', '#fff');
+            modelBox.text(pledge.model);
+            infoBox.append(modelBox);
+            
             let manuBox = infoTemplate.clone();
             manuBox.css('border-top', 'none');
             manuBox.css('border-bottom', '3px solid rgb(29, 45, 66)');
@@ -217,7 +238,7 @@ $(function () {
             }
 
             $.each(skins, function(skinIndex, skinName) {
-                if (skinName.search(pledge.shortName) != -1) {
+                if (skinName.search(pledge.shortModel) != -1) {
                     infoBox.append(infoTemplate.clone().text(skinName));
                 }
             });
@@ -287,6 +308,3 @@ $(function () {
         $('div.sidenav ul').prepend(newNav);
     }
 });
-
-
-
