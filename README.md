@@ -26,6 +26,10 @@ It's also available for Chrome.
 
 ### Acknowledgment
 
-I borrowed some code from [https://github.com/Ioni14/fleet-manager-extension](https://github.com/Ioni14/fleet-manager-extension). 
+I borrowed some code from [https://github.com/Ioni14/fleet-manager-extension](https://github.com/Ioni14/fleet-manager-extension),
+which is licensed under the MIT License (MIT) by Thomas Talbot. Thanks to him.
 
-Thanks to them.
+## License
+
+This application is made available under the GNU General Public License v3.0.
+Please see the [LICENSE](LICENSE) file for further details.
