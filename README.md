@@ -1,16 +1,13 @@
-## Star Citizen - Fleet Info
-
 This code injects a new sub page in the account section of https://robertsspaceindustries.com
-
 On this page, all vehicles contained in packages are displayed with some info.
 
 ![example](example.jpg)
 
-### Status
+## Status
 
 WIP prototype, so it's quite dirty. Expect bugs.
 
-### How to use
+## How to use
 
 There is no dedicated browser extension yet.
 
@@ -24,7 +21,7 @@ It's also available for Chrome.
 
 ![example](example_use.jpg)
 
-### Acknowledgment
+## Acknowledgment
 
 I borrowed some code from [https://github.com/Ioni14/fleet-manager-extension](https://github.com/Ioni14/fleet-manager-extension),
 which is licensed under the MIT License (MIT) by Thomas Talbot. Thanks to him.
