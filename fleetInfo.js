@@ -238,9 +238,15 @@ $(function () {
             }
 
             $.each(skins, function(skinIndex, skinName) {
-                if (skinName.search(pledge.shortModel) != -1) {
+
+                // mercury skin hotfix
+                if (pledge.shortModel == "Mercury" && skinName.search("Star Runner") != -1) {
+                    infoBox.append(infoTemplate.clone().text(skinName));
+
+                } else if (skinName.search(pledge.shortModel) != -1) {
                     infoBox.append(infoTemplate.clone().text(skinName));
                 }
+                
             });
 
             let inner = $('<div></div>');
