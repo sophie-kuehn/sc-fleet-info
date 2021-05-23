@@ -246,6 +246,16 @@ $(function () {
                 // mercury skin hotfix
                 if (pledge.shortModel == "Mercury" && skinName.search("Star Runner") != -1) {
                     infoBox.append(infoTemplate.clone().text(skinName));
+                    
+                // ROC DS skin hotfix
+                } else if (pledge.model == "GRIN ROC DS" && skinName.search("ROC") != -1) {
+                    infoBox.append(infoTemplate.clone().text(skinName));
+
+                // Sabre Raven skin hotfix
+                } else if (pledge.model == "Sabre Raven") {
+                    if (skinName.search("Sabre Raven") != -1) {
+                        infoBox.append(infoTemplate.clone().text(skinName));
+                    }
 
                 } else if (skinName.search(pledge.shortModel) != -1) {
                     infoBox.append(infoTemplate.clone().text(skinName));
@@ -327,3 +337,5 @@ $(function () {
         $('div.sidenav ul').prepend(newNav);
     }
 });
+
+
