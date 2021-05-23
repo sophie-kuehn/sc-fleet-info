@@ -175,11 +175,15 @@ $(function () {
         })
     };
 
-    const renderFleet = function(fleetList) {
+    const renderFleet = function(fleetList, fleetViewLink) {
         fleetList.empty();
+        let fleetViewLinkHref = "http://www.starship42.com/fleetview/?type=matrix";
+        
         $.each(pledges, function(index, pledge) {
             console.log(pledge);
 
+            fleetViewLinkHref = fleetViewLinkHref + "&s[]=" + pledge.model;
+            
             let imageBox = $('<div></div>');
             imageBox.css('background-image', pledge.image);
             imageBox.css('background-size', 'cover');
@@ -243,16 +247,6 @@ $(function () {
                 if (pledge.shortModel == "Mercury" && skinName.search("Star Runner") != -1) {
                     infoBox.append(infoTemplate.clone().text(skinName));
 
-                // ROC DS skin hotfix
-                } else if (pledge.model == "GRIN ROC DS" && skinName.search("ROC") != -1) {
-                    infoBox.append(infoTemplate.clone().text(skinName));
-
-                // Sabre Raven skin hotfix
-                } else if (pledge.model == "Sabre Raven") {
-                    if (skinName.search("Sabre Raven") != -1) {
-                        infoBox.append(infoTemplate.clone().text(skinName));
-                    }
-
                 } else if (skinName.search(pledge.shortModel) != -1) {
                     infoBox.append(infoTemplate.clone().text(skinName));
                 }
@@ -273,6 +267,8 @@ $(function () {
             newEntry.append(inner);
             fleetList.append(newEntry);
         });
+        
+        fleetViewLink.attr("href", fleetViewLinkHref);
     };
 
     let dataLoaded = false;
@@ -295,12 +291,19 @@ $(function () {
         $('div.sidenav ul li').removeClass('active');
         $('.showFleetsButton').addClass('active');
         let top = $('<div class="top"></div>');
+        
+        let fleetViewLinkBox = $('<div></div>');
+        $('.inner-content').append(fleetViewLinkBox);
+        let fleetViewLink = $('<a href="" target="_blank" class="shadow-button trans-02s trans-color" style="padding:0;float:right;"><span class="label js-label trans-02s">show my fleet in 3D</span><span class="left-section"></span><span class="right-section"></span></a>');
+        top.append(fleetViewLink);        
+        
         $('.inner-content').empty().css('box-sizing', 'inherit').append(top);
         let title = $('<h2 class="title">MY FLEET</h2>');
         top.append(title);
-        let sep = $('<div class="separator"></div>');
+        
+        let sep = $('<div style="clear:both" class="separator"></div>');
         top.append(sep);
-
+        
         let fleetList = $('<div class="fleetList"></div>');
         fleetList.css('display', 'flex');
         fleetList.css('flex-wrap', 'wrap');
@@ -309,7 +312,7 @@ $(function () {
         $('.inner-content').append(fleetList);
 
         loadData(1, function(){
-            renderFleet(fleetList);
+            renderFleet(fleetList, fleetViewLink);
         });
     };
 
