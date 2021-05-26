@@ -244,28 +244,35 @@ $(function () {
             }
 
             $.each(skins, function(skinName, skinNumber) {
-                if (skinNumber > 1) {
-                    skinName = skinName + " (" + skinNumber + ")";
-                }
+                let append = false;
                 
                 // mercury skin hotfix
                 if (pledge.shortModel == "Mercury" && skinName.search("Star Runner") != -1) {
-                    infoBox.append(infoTemplate.clone().text(skinName));
+                    skinName = skinName.replace("Star Runner", "");
+                    append = true;
                     
                 // ROC DS skin hotfix
                 } else if (pledge.model == "GRIN ROC DS" && skinName.search("ROC") != -1) {
-                    infoBox.append(infoTemplate.clone().text(skinName));
+                    append = true;
 
                 // Sabre Raven skin hotfix
                 } else if (pledge.model == "Sabre Raven") {
                     if (skinName.search("Sabre Raven") != -1) {
-                        infoBox.append(infoTemplate.clone().text(skinName));
+                        append = true;
                     }
 
                 } else if (skinName.search(pledge.shortModel) != -1) {
-                    infoBox.append(infoTemplate.clone().text(skinName));
+                    append = true;
                 }
                 
+                if (append) {
+                    skinName = skinName.replace(pledge.shortModel, "");
+                    skinName = skinName.replace(pledge.model, "");
+                    skinName = skinName.replace("-", "");
+                    skinName = skinName.trim();
+                    if (skinNumber > 1) skinName = skinName + " (" + skinNumber + ")";
+                    infoBox.append(infoTemplate.clone().text(skinName));
+                }
             });
 
             let inner = $('<div></div>');
