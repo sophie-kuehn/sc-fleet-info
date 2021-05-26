@@ -28,6 +28,14 @@ $(function () {
         'XIAN': ['Xi\'an'],
     };
 
+    const _altShipNames = {
+        'Mercury Star Runner': ['Star Runner'],
+        'GRIN ROC DS': ['ROC'],
+        '100i': ['100 series'],
+        '125a': ['100 series'],
+        '135c': ['100 series']
+    };
+
     const createPledge = function($pledge, name, model, manufacturer, insuranceType, insuranceDuration, gamePackage, image) {
         if (image == undefined) {
             image = $('div.image', $pledge).css('background-image');
@@ -48,9 +56,11 @@ $(function () {
         $.each(pledge.manufacturerNames, function(mi, manufacturerName) {
             model = model.replace(new RegExp(manufacturerName, 'gi'), '');
         });
+
         model = model.replace(/\-/gi, '').trim();
         pledge.model = model;
         pledge.shortModel = model.split(' ')[0];
+        pledge.altModelNames = _altShipNames[pledge.model] || []
 
         return pledge;
     };
@@ -128,6 +138,7 @@ $(function () {
                     let skinName = $('.title', $shipInfo).text();
                     if (skins[skinName] == undefined) skins[skinName] = 0;
                     skins[skinName] = skins[skinName] + 1;
+                    console.log(skinName);
                     return;
                 }
 
@@ -241,32 +252,26 @@ $(function () {
             }
 
             $.each(skins, function(skinName, skinNumber) {
-                let append = false;
+                let append = (skinName.search(new RegExp(pledge.shortModel, "i")) != -1);
 
-                // mercury skin hotfix
-                if (pledge.shortModel == "Mercury" && skinName.search("Star Runner") != -1) {
-                    skinName = skinName.replace("Star Runner", "");
-                    append = true;
-
-                // ROC DS skin hotfix
-                } else if (pledge.model == "GRIN ROC DS" && skinName.search("ROC") != -1) {
-                    append = true;
-
-                // Sabre Raven skin hotfix
-                } else if (pledge.model == "Sabre Raven") {
-                    if (skinName.search("Sabre Raven") != -1) {
-                        append = true;
-                    }
-
-                } else if (skinName.search(pledge.shortModel) != -1) {
-                    append = true;
+                // remove "sabre" skins from "sabre raven"
+                if (pledge.model == "Sabre Raven") {
+                    append = (skinName.search(/Sabre Raven/i) != -1);
                 }
+
+                // take care of naming mess
+                $.each(pledge.altModelNames, function(ani, altName) {
+                    append = (skinName.search(new RegExp(altName, "i")) != -1);
+                });
 
                 if (append) {
                     skinName = skinName.replace(pledge.shortModel, "");
                     skinName = skinName.replace(pledge.model, "");
+                    $.each(pledge.altModelNames, function(ani, altName) {
+                        skinName = skinName.replace(new RegExp(altName, "i"), "");
+                    });
                     $.each(pledge.manufacturerNames, function(mi, manufacturerName) {
-                        skinName = skinName.replace(manufacturerName, "");
+                        skinName = skinName.replace(new RegExp(manufacturerName, "i"), "");
                     });
                     skinName = skinName.replace("-", "");
                     skinName = skinName.trim();
