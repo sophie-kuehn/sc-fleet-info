@@ -1,7 +1,7 @@
 $(function () {
     'use strict';
     let pledges = [];
-    let skins = [];
+    let skins = {};
 
     const INSURANCE_TYPE_LTI = 'lti';
     const INSURANCE_TYPE_IAE = 'iae';
@@ -128,7 +128,9 @@ $(function () {
                 // skins
                 let $shipInfo = $item.find('.kind:contains(Skin)').parent();
                 if ($shipInfo.length !== 0) {
-                    skins.push($('.title', $shipInfo).text());
+                    let skinName = $('.title', $shipInfo).text();
+                    if (skins[skinName] == undefined) skins[skinName] = 0;
+                    skins[skinName] = skins[skinName] + 1;
                     return;
                 }
 
@@ -241,8 +243,11 @@ $(function () {
                 infoBox.append(infoTemplate.clone().text(pledge.insurance_duration + " Month/s Insurance"));
             }
 
-            $.each(skins, function(skinIndex, skinName) {
-
+            $.each(skins, function(skinName, skinNumber) {
+                if (skinNumber > 1) {
+                    skinName = skinName + " (" + skinNumber + ")";
+                }
+                
                 // mercury skin hotfix
                 if (pledge.shortModel == "Mercury" && skinName.search("Star Runner") != -1) {
                     infoBox.append(infoTemplate.clone().text(skinName));
