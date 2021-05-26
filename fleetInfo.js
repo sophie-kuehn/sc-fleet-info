@@ -41,16 +41,13 @@ $(function () {
             pledge: $('.js-pledge-name', $pledge).val(),
             image: image,
             gamePackage: gamePackage,
-            name: name
+            name: name,
+            manufacturerNames: _manufacturerShortMap[manufacturer] || [manufacturer]
         };
 
-        let manufacturerNames = _manufacturerShortMap[manufacturer] || [manufacturer];
-        pledge.manufacturer = manufacturerNames[0];
-
-        $.each(manufacturerNames, function(mi, manufacturerName) {
+        $.each(pledge.manufacturerNames, function(mi, manufacturerName) {
             model = model.replace(new RegExp(manufacturerName, 'gi'), '');
         });
-
         model = model.replace(/\-/gi, '').trim();
         pledge.model = model;
         pledge.shortModel = model.split(' ')[0];
@@ -180,12 +177,12 @@ $(function () {
     const renderFleet = function(fleetList, fleetViewLink) {
         fleetList.empty();
         let fleetViewLinkHref = "http://www.starship42.com/fleetview/?type=matrix";
-        
+
         $.each(pledges, function(index, pledge) {
             console.log(pledge);
 
             fleetViewLinkHref = fleetViewLinkHref + "&s[]=" + pledge.model;
-            
+
             let imageBox = $('<div></div>');
             imageBox.css('background-image', pledge.image);
             imageBox.css('background-size', 'cover');
@@ -213,24 +210,24 @@ $(function () {
             let modelBox = infoTemplate.clone();
             modelBox.css('border-top', 'none');
             modelBox.css('padding', '3px 0 0 0');
-            
+
             if (pledge.name.length > 0) {
                 modelBox.css('font-size', '0.9em');
             } else {
                 modelBox.css('padding', '3px 0 0 0');
                 modelBox.css('font-size', '1.2em');
             }
-            
+
             modelBox.css('color', '#fff');
             modelBox.text(pledge.model);
             infoBox.append(modelBox);
-            
+
             let manuBox = infoTemplate.clone();
             manuBox.css('border-top', 'none');
             manuBox.css('border-bottom', '3px solid rgb(29, 45, 66)');
             manuBox.css('padding', '0 0 6px 0');
             manuBox.css('font-size', '0.8em');
-            manuBox.text(pledge.manufacturer);
+            manuBox.text(pledge.manufacturerNames[0]);
             infoBox.append(manuBox);
 
             if (pledge.gamePackage) {
@@ -245,12 +242,12 @@ $(function () {
 
             $.each(skins, function(skinName, skinNumber) {
                 let append = false;
-                
+
                 // mercury skin hotfix
                 if (pledge.shortModel == "Mercury" && skinName.search("Star Runner") != -1) {
                     skinName = skinName.replace("Star Runner", "");
                     append = true;
-                    
+
                 // ROC DS skin hotfix
                 } else if (pledge.model == "GRIN ROC DS" && skinName.search("ROC") != -1) {
                     append = true;
@@ -264,10 +261,13 @@ $(function () {
                 } else if (skinName.search(pledge.shortModel) != -1) {
                     append = true;
                 }
-                
+
                 if (append) {
                     skinName = skinName.replace(pledge.shortModel, "");
                     skinName = skinName.replace(pledge.model, "");
+                    $.each(pledge.manufacturerNames, function(mi, manufacturerName) {
+                        skinName = skinName.replace(manufacturerName, "");
+                    });
                     skinName = skinName.replace("-", "");
                     skinName = skinName.trim();
                     if (skinNumber > 1) skinName = skinName + " (" + skinNumber + ")";
@@ -289,7 +289,7 @@ $(function () {
             newEntry.append(inner);
             fleetList.append(newEntry);
         });
-        
+
         fleetViewLink.attr("href", fleetViewLinkHref);
     };
 
@@ -313,19 +313,19 @@ $(function () {
         $('div.sidenav ul li').removeClass('active');
         $('.showFleetsButton').addClass('active');
         let top = $('<div class="top"></div>');
-        
+
         let fleetViewLinkBox = $('<div></div>');
         $('.inner-content').append(fleetViewLinkBox);
         let fleetViewLink = $('<a href="" target="_blank" class="shadow-button trans-02s trans-color" style="padding:0;float:right;"><span class="label js-label trans-02s">show my fleet in 3D</span><span class="left-section"></span><span class="right-section"></span></a>');
-        top.append(fleetViewLink);        
-        
+        top.append(fleetViewLink);
+
         $('.inner-content').empty().css('box-sizing', 'inherit').append(top);
         let title = $('<h2 class="title">MY FLEET</h2>');
         top.append(title);
-        
+
         let sep = $('<div style="clear:both" class="separator"></div>');
         top.append(sep);
-        
+
         let fleetList = $('<div class="fleetList"></div>');
         fleetList.css('display', 'flex');
         fleetList.css('flex-wrap', 'wrap');
