@@ -36,6 +36,10 @@ $(function () {
         '135c': ['100 series']
     };
 
+    const _doStrictSkinSearch = {
+        'Sabre Raven': true
+    };
+
     const createPledge = function($pledge, name, model, manufacturer, insuranceType, insuranceDuration, gamePackage, image) {
         if (image == undefined) {
             image = $('div.image', $pledge).css('background-image');
@@ -252,17 +256,28 @@ $(function () {
             }
 
             $.each(skins, function(skinName, skinNumber) {
-                let append = (skinName.search(new RegExp(pledge.shortModel, "i")) != -1);
-
-                // remove "sabre" skins from "sabre raven"
-                if (pledge.model == "Sabre Raven") {
-                    append = (skinName.search(/Sabre Raven/i) != -1);
-                }
+                let searchFor = pledge.shortModel;
+                if (_doStrictSkinSearch[pledge.model] != undefined) searchFor = pledge.model;
+                let append = (skinName.search(new RegExp(searchFor, "i")) != -1);
 
                 // take care of naming mess
                 $.each(pledge.altModelNames, function(ani, altName) {
-                    append = (skinName.search(new RegExp(altName, "i")) != -1);
+                    if (skinName.search(new RegExp(altName, "i")) != -1) {
+                        append = true;
+                        return false;
+                    }
                 });
+
+                // even bigger mess
+                if ((append == true && skinName.search(new RegExp("Ares Radiance", "i")) != -1
+                        && pledge.pledge.search(new RegExp("Radiance", "i")) == -1
+                    )
+                    || (append == true && skinName.search(new RegExp("Ares Ember", "i")) != -1
+                        && pledge.pledge.search(new RegExp("Ember", "i")) == -1
+                    )
+                ) {
+                    append = false;
+                }
 
                 if (append) {
                     skinName = skinName.replace(pledge.shortModel, "");
