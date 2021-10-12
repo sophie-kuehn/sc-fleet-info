@@ -135,10 +135,12 @@ $(function () {
             // browse the Ship items
             $('.items .item', $pledge).each((indexItem, elItem) => {
                 const $item = $(elItem);
+                let $shipInfo = $item;
 
                 // skins
-                let $shipInfo = $item.find('.kind:contains(Skin)').parent();
-                if ($shipInfo.length !== 0) {
+                if ($item.find('.kind:contains(Skin)').length !== 0 
+                    || $item.find('.title:contains(Paint)').length !== 0
+                ) {
                     let skinName = $('.title', $shipInfo).text();
                     if (skins[skinName] == undefined) skins[skinName] = 0;
                     skins[skinName] = skins[skinName] + 1;
@@ -147,8 +149,7 @@ $(function () {
                 }
 
                 // special cases
-                $shipInfo = $item.find('.kind:contains(Hangar decoration)').parent();
-                if ($shipInfo.length !== 0) {
+                if ($item.find('.kind:contains(Hangar decoration)').length !== 0) {
                     if ($('.liner', $shipInfo).text().indexOf('Greycat Industrial') !== -1
                         && $('.title', $shipInfo).text().indexOf('Greycat PTV') !== -1) {
 
@@ -168,23 +169,21 @@ $(function () {
                     return;
                 }
 
-                $shipInfo = $item.find('.kind:contains(Ship)').parent();
-                if ($shipInfo.length === 0) {
-                    return;
+                // ship
+                if ($item.find('.kind:contains(Ship)').length !== 0) {
+                    const pledge = createPledge(
+                        $pledge,
+                        $('.custom-name', $shipInfo).text(),
+                        $('.title', $shipInfo).text(),
+                        $('.liner span', $shipInfo).text(),
+                        insuranceType,
+                        insuranceDuration,
+                        gamePackage,
+                        $('div.image', $item).css('background-image')
+                    );
+
+                    pledges.push(pledge);
                 }
-
-                const pledge = createPledge(
-                    $pledge,
-                    $('.custom-name', $shipInfo).text(),
-                    $('.title', $shipInfo).text(),
-                    $('.liner span', $shipInfo).text(),
-                    insuranceType,
-                    insuranceDuration,
-                    gamePackage,
-                    $('div.image', $item).css('background-image')
-                );
-
-                pledges.push(pledge);
             });
         })
     };
@@ -369,5 +368,3 @@ $(function () {
         $('div.sidenav ul').prepend(newNav);
     }
 });
-
-
