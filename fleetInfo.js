@@ -37,10 +37,12 @@ $(function () {
     };
 
     const _doStrictSkinSearch = {
-        'Sabre Raven': true
+        'Sabre Raven': true,
+        'Hull D': true
     };
 
-    const createPledge = function($pledge, name, model, manufacturer, insuranceType, insuranceDuration, gamePackage, image) {
+    const createPledge = function($pledge, name, model, manufacturer, insuranceType, insuranceDuration, gamePackage, image)
+    {
         if (image == undefined) {
             image = $('div.image', $pledge).css('background-image');
         }
@@ -69,7 +71,8 @@ $(function () {
         return pledge;
     };
 
-    const processPledges = function(body) {
+    const processPledges = function(body) 
+    {
         $('.list-items li', body).each((index, el) => {
             const $pledge = $(el);
 
@@ -188,7 +191,8 @@ $(function () {
         })
     };
 
-    const renderFleet = function(fleetList, fleetViewLink) {
+    const renderFleet = function(fleetList, fleetViewLink) 
+    {
         fleetList.empty();
         let fleetViewLinkHref = "http://www.starship42.com/fleetview/?type=matrix";
 
@@ -313,7 +317,8 @@ $(function () {
     };
 
     let dataLoaded = false;
-    const loadData = function(page, callback) {
+    const loadData = function(page, callback) 
+    {
         if (dataLoaded) return callback();
 
         const url = '/account/pledges?page=' + page;
@@ -328,7 +333,8 @@ $(function () {
         });
     };
 
-    const renderFleetPage = function() {
+    const renderFleetPage = function() 
+    {
         $('div.sidenav ul li').removeClass('active');
         $('.showFleetsButton').addClass('active');
         let top = $('<div class="top"></div>');
@@ -368,3 +374,5 @@ $(function () {
         $('div.sidenav ul').prepend(newNav);
     }
 });
+
+
