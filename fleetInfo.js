@@ -138,6 +138,11 @@ $(function () {
             $('.items .item', $pledge).each((indexItem, elItem) => {
                 const $item = $(elItem);
 
+                let itemImage = "";
+                if ($item.find('.image').length !== 0) {
+                    itemImage = $('.image', $item).css('background-image');
+                }
+                    
                 // skins
                 if ($item.find('.kind:contains(Skin)').length !== 0 
                     || $item.find('.title:contains(Paint)').length !== 0
@@ -147,6 +152,7 @@ $(function () {
                     if (skins[skinTitle] == undefined) {
                         skins[skinTitle] = {
                             title: skinTitle,
+                            image: itemImage,
                             count: 1,
                             attached: false
                         };
@@ -172,6 +178,7 @@ $(function () {
                             title: upgradeTitle,
                             from: parts[0].trim(),
                             to: parts[1].trim(),
+                            image: itemImage,
                             count: 1,
                             attached: false
                         };
@@ -212,7 +219,7 @@ $(function () {
                         insuranceType,
                         insuranceDuration,
                         gamePackage,
-                        $('div.image', $item).css('background-image')
+                        itemImage
                     ));
                 }
             });
@@ -272,7 +279,21 @@ $(function () {
         let infoTemplate = $('<li></li>');
         infoTemplate.css('border-top', '1px solid rgb(29, 45, 66)');
         infoTemplate.css('padding', '3px 0');
+        infoTemplate.css("position", "relative");
         
+        let infoOverlayTemplate = $('<div></div>');
+        infoOverlayTemplate.css("position", "absolute");
+        infoOverlayTemplate.css("right", "105%");
+        infoOverlayTemplate.css("top", "0");
+        infoOverlayTemplate.css("padding", "3px");
+        infoOverlayTemplate.css("border", "3px solid rgb(29, 45, 66)");
+        infoOverlayTemplate.css("background-color", "rgba(23, 29, 37, 0.5)");
+        infoOverlayTemplate.css('background-size', 'cover');
+        infoOverlayTemplate.css('background-position', 'center');
+        infoOverlayTemplate.css('background-repeat', 'no-repeat');
+        infoOverlayTemplate.css("display", "none");
+        infoOverlayTemplate.css("z-index", "999");
+            
         let modelBox = infoTemplate.clone();
         modelBox.css('border-top', 'none');
         modelBox.css('padding', '3px 0 0 0');
@@ -314,7 +335,26 @@ $(function () {
         infoBox.append(manuBox)
 
         $.each(infos, function(iterator, info) {
-            infoBox.append(infoTemplate.clone().text(info));
+            let infoLine = infoTemplate.clone();
+            infoLine.text(info.text);
+            
+            if (info.image != undefined
+                && info.image.length > 0
+            ) {
+                let overlay = infoOverlayTemplate.clone();     
+                overlay.css("background-image", info.image);
+                overlay.css("width", "130px");
+                overlay.css("height", "80px");
+                
+                infoLine.append(overlay);
+                infoLine.hover(function(){ 
+                    overlay.css("display", "block");
+                }, function(){ 
+                    overlay.css("display", "none");
+                });
+            }
+            
+            infoBox.append(infoLine);
         });
 
         let newEntry = $('<div></div>');
@@ -336,13 +376,13 @@ $(function () {
             let infos = [];
             
             if (ship.gamePackage) {
-                infos.push("Game Package");
+                infos.push({text:"Game Package"});
             }
 
             if (ship.insurance_type == INSURANCE_TYPE_LTI) {
-                infos.push("Life Time Insurance");
+                infos.push({text:"Life Time Insurance"});
             } else if (ship.insurance_type != null) {
-                infos.push(ship.insurance_duration + " Month/s Insurance");
+                infos.push({text:ship.insurance_duration + " Month/s Insurance"});
             }
             
             $.each(upgrades, function(iterator, upgrade) {
@@ -350,7 +390,7 @@ $(function () {
                 upgrade.attached = true;
                 let text = "Upgrade to " + upgrade.to;
                 if (upgrade.count > 1) text = text + " (" + upgrade.count + ")";
-                infos.push(text);
+                infos.push({text:text, image:upgrade.image});
             });
                 
             $.each(skins, function(iterator, skin) {
@@ -369,7 +409,7 @@ $(function () {
                 skinName = skinName.replace("-", "");
                 skinName = skinName.trim();
                 if (skin.count > 1) skinName = skinName + " (" + skin.count + ")";
-                infos.push(skinName);
+                infos.push({text:skinName, image:skin.image});
             });
             
             fleetList.append(renderShip(ship, infos));
@@ -381,14 +421,15 @@ $(function () {
             if (upgrade.attached) return;
             let text = "Upgrade to " + upgrade.to;
             if (upgrade.count > 1) text = text + " (" + upgrade.count + ")";
+            let info = {text:text, image:upgrade.image};
             
             if (missingUpgradeShips[upgrade.from] == undefined) {
                 missingUpgradeShips[upgrade.from] = {
                     shipName: upgrade.from,
-                    upgrades: [text]
+                    upgrades: [info]
                 };
             } else {
-                missingUpgradeShips[upgrade.from].upgrades.push(text);
+                missingUpgradeShips[upgrade.from].upgrades.push(info);
             }
         });
         
