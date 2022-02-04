@@ -38,7 +38,8 @@ $(function () {
     };
 
     const _doStrictSkinSearch = {
-        'Sabre Raven': true
+        'Sabre Raven': true,
+        'Hull D': true
     };
 
     const prepareShipInfo = function($pledge, name, model, manufacturer, insuranceType, insuranceDuration, gamePackage, image)
