@@ -1,7 +1,8 @@
 $(function () {
     'use strict';
-    let pledges = [];
+    let ships = [];
     let skins = {};
+    let upgrades = {};
 
     const INSURANCE_TYPE_LTI = 'lti';
     const INSURANCE_TYPE_IAE = 'iae';
@@ -37,11 +38,10 @@ $(function () {
     };
 
     const _doStrictSkinSearch = {
-        'Sabre Raven': true,
-        'Hull D': true
+        'Sabre Raven': true
     };
 
-    const createPledge = function($pledge, name, model, manufacturer, insuranceType, insuranceDuration, gamePackage, image)
+    const prepareShipInfo = function($pledge, name, model, manufacturer, insuranceType, insuranceDuration, gamePackage, image)
     {
         if (image == undefined) {
             image = $('div.image', $pledge).css('background-image');
@@ -121,7 +121,7 @@ $(function () {
 
                 if (/Origin\s+G12[ar]/i.test(bonus)) {
                     const shipInfoRegexResult = /(Origin)\s+(G12[ar])/i.exec(bonus);
-                    const pledge = createPledge(
+                    ships.push(prepareShipInfo(
                         $pledge,
                         '',
                         shipInfoRegexResult[2],
@@ -129,190 +129,260 @@ $(function () {
                         insuranceType,
                         insuranceDuration,
                         gamePackage
-                    );
-
-                    pledges.push(pledge);
+                    ));
                 }
             });
 
             // browse the Ship items
             $('.items .item', $pledge).each((indexItem, elItem) => {
                 const $item = $(elItem);
-                let $shipInfo = $item;
 
                 // skins
                 if ($item.find('.kind:contains(Skin)').length !== 0 
                     || $item.find('.title:contains(Paint)').length !== 0
                 ) {
-                    let skinName = $('.title', $shipInfo).text();
-                    if (skins[skinName] == undefined) skins[skinName] = 0;
-                    skins[skinName] = skins[skinName] + 1;
-                    console.log(skinName);
+                    let skinTitle = $('.title', $item).text();
+                    
+                    if (skins[skinTitle] == undefined) {
+                        skins[skinTitle] = {
+                            title: skinTitle,
+                            count: 1,
+                            attached: false
+                        };
+                    } else {
+                        skins[skinTitle].count++;
+                    }
+                    
+                    console.log(skins[skinTitle]);
+                    return;
+                }
+                
+                // upgrades
+                if ($item.find('.title:contains(Upgrade -)').length !== 0
+                    && $item.find('.title:contains( to )').length !== 0
+                ) {
+                    let upgradeTitle = $('.title', $item).text();
+                    upgradeTitle = upgradeTitle.replace("Standard Edition", "");
+                    upgradeTitle = upgradeTitle.trim();
+                    let parts = upgradeTitle.split('-')[1].split(' to ')
+                    
+                    if (upgrades[upgradeTitle] == undefined) {
+                        upgrades[upgradeTitle] = {
+                            title: upgradeTitle,
+                            from: parts[0].trim(),
+                            to: parts[1].trim(),
+                            count: 1,
+                            attached: false
+                        };
+                    } else {
+                        upgrades[upgradeTitle].count++;
+                    }
+                    
+                    console.log(upgrades[upgradeTitle])
                     return;
                 }
 
                 // special cases
                 if ($item.find('.kind:contains(Hangar decoration)').length !== 0) {
-                    if ($('.liner', $shipInfo).text().indexOf('Greycat Industrial') !== -1
-                        && $('.title', $shipInfo).text().indexOf('Greycat PTV') !== -1) {
+                    if ($('.liner', $item).text().indexOf('Greycat Industrial') !== -1
+                        && $('.title', $item).text().indexOf('Greycat PTV') !== -1) {
 
                         // Found the ship "Greycat PTV" from "Greycat Industrial"
-                        const pledge = createPledge(
+                        ships.push(prepareShipInfo(
                             $pledge,
                             '',
-                            $('.title', $shipInfo).text(),
-                            $('.liner span', $shipInfo).text(),
+                            $('.title', $item).text(),
+                            $('.liner span', $item).text(),
                             insuranceType,
                             insuranceDuration,
                             gamePackage
-                        );
-
-                        pledges.push(pledge);
+                        ));
                     }
                     return;
                 }
 
                 // ship
                 if ($item.find('.kind:contains(Ship)').length !== 0) {
-                    const pledge = createPledge(
+                    ships.push(prepareShipInfo(
                         $pledge,
-                        $('.custom-name', $shipInfo).text(),
-                        $('.title', $shipInfo).text(),
-                        $('.liner span', $shipInfo).text(),
+                        $('.custom-name', $item).text(),
+                        $('.title', $item).text(),
+                        $('.liner span', $item).text(),
                         insuranceType,
                         insuranceDuration,
                         gamePackage,
                         $('div.image', $item).css('background-image')
-                    );
-
-                    pledges.push(pledge);
+                    ));
                 }
             });
         })
     };
+    
+    const isShipInString = function(haystack, pledge)
+    {
+        let searchFor = pledge.shortModel;
+        if (_doStrictSkinSearch[pledge.model] != undefined) searchFor = pledge.model;
+        let result = (haystack.search(new RegExp(searchFor, "i")) != -1);
 
+        // take care of naming mess
+        $.each(pledge.altModelNames, function(ani, altName) {
+            if (haystack.search(new RegExp(altName, "i")) != -1) {
+                result = true;
+                return false;
+            }
+        });
+
+        // even bigger mess
+        if ((result == true && haystack.search(new RegExp("Ares Radiance", "i")) != -1
+                && pledge.pledge.search(new RegExp("Radiance", "i")) == -1
+            )
+            || (result == true && haystack.search(new RegExp("Ares Ember", "i")) != -1
+                && pledge.pledge.search(new RegExp("Ember", "i")) == -1
+            )
+        ) {
+            result = false;
+        }
+        
+        return result;
+    };
+    
+    const renderShip = function(ship, infos)
+    {
+        let inner = $('<div></div>');
+        inner.css('background-color', 'rgba(23,29,37,0.5)');
+        inner.css('padding', '10px');
+        inner.css('margin', '5px');
+
+        if (ship.image != undefined) {
+            let imageBox = $('<div></div>');
+            imageBox.css('background-image', ship.image);
+            imageBox.css('background-size', 'cover');
+            imageBox.css('background-position', 'center');
+            imageBox.css('background-repeat', 'no-repeat');
+            imageBox.css('height', '110px');
+            inner.append(imageBox);
+        }
+        
+        let infoBox = $('<ul></ul>');
+        infoBox.css('margin', '0');
+        infoBox.css('padding', '0'); 
+        inner.append(infoBox);
+        
+        let infoTemplate = $('<li></li>');
+        infoTemplate.css('border-top', '1px solid rgb(29, 45, 66)');
+        infoTemplate.css('padding', '3px 0');
+        
+        let modelBox = infoTemplate.clone();
+        modelBox.css('border-top', 'none');
+        modelBox.css('padding', '3px 0 0 0');
+        modelBox.css('color', '#fff');
+        modelBox.text(ship.model);
+        
+        if (ship.name != undefined 
+            && ship.name.length > 0
+        ) {
+            let nameBox = infoTemplate.clone();
+            nameBox.css('border-top', 'none');
+            nameBox.css('padding', '3px 0 0 0');
+            nameBox.css('font-size', '1.2em');
+            nameBox.css('color', '#fff');
+            nameBox.text(ship.name);
+            infoBox.append(nameBox);
+            
+            modelBox.css('font-size', '0.9em');
+            
+        } else {
+            modelBox.css('padding', '3px 0 0 0');
+            modelBox.css('font-size', '1.2em');
+        }
+
+        infoBox.append(modelBox);
+
+        let manuBox = infoTemplate.clone();
+        manuBox.css('border-top', 'none');
+        manuBox.css('border-bottom', '3px solid rgb(29, 45, 66)');
+        manuBox.css('padding', '0 0 6px 0');
+        manuBox.css('font-size', '0.8em');
+        
+        if (ship.manufacturerNames != undefined 
+            && ship.manufacturerNames.length >= 1
+        ) {
+            manuBox.text(ship.manufacturerNames[0]);
+        }        
+        
+        infoBox.append(manuBox)
+
+        $.each(infos, function(iterator, info) {
+            infoBox.append(infoTemplate.clone().text(info));
+        });
+
+        let newEntry = $('<div></div>');
+        newEntry.css('width', '25%');
+        newEntry.css('position', 'relative');
+        newEntry.append(inner);
+        
+        return newEntry;
+    };
+    
     const renderFleet = function(fleetList, fleetViewLink) 
     {
         fleetList.empty();
         let fleetViewLinkHref = "http://www.starship42.com/fleetview/?type=matrix";
 
-        $.each(pledges, function(index, pledge) {
-            console.log(pledge);
-
-            fleetViewLinkHref = fleetViewLinkHref + "&s[]=" + pledge.model;
-
-            let imageBox = $('<div></div>');
-            imageBox.css('background-image', pledge.image);
-            imageBox.css('background-size', 'cover');
-            imageBox.css('background-position', 'center');
-            imageBox.css('background-repeat', 'no-repeat');
-            imageBox.css('height', '110px');
-
-            let infoBox = $('<ul></ul>');
-            infoBox.css('margin', '0');
-            infoBox.css('padding', '0');
-            let infoTemplate = $('<li></li>');
-            infoTemplate.css('border-top', '1px solid rgb(29, 45, 66)');
-            infoTemplate.css('padding', '3px 0');
-
-            if (pledge.name.length > 0) {
-                let nameBox = infoTemplate.clone();
-                nameBox.css('border-top', 'none');
-                nameBox.css('padding', '3px 0 0 0');
-                nameBox.css('font-size', '1.2em');
-                nameBox.css('color', '#fff');
-                nameBox.text(pledge.name);
-                infoBox.append(nameBox);
+        $.each(ships, function(index, ship) {
+            console.log(ship);
+            fleetViewLinkHref = fleetViewLinkHref + "&s[]=" + ship.model;
+            let infos = [];
+            
+            if (ship.gamePackage) {
+                infos.push("Game Package");
             }
 
-            let modelBox = infoTemplate.clone();
-            modelBox.css('border-top', 'none');
-            modelBox.css('padding', '3px 0 0 0');
-
-            if (pledge.name.length > 0) {
-                modelBox.css('font-size', '0.9em');
-            } else {
-                modelBox.css('padding', '3px 0 0 0');
-                modelBox.css('font-size', '1.2em');
+            if (ship.insurance_type == INSURANCE_TYPE_LTI) {
+                infos.push("Life Time Insurance");
+            } else if (ship.insurance_type != null) {
+                infos.push(ship.insurance_duration + " Month/s Insurance");
             }
-
-            modelBox.css('color', '#fff');
-            modelBox.text(pledge.model);
-            infoBox.append(modelBox);
-
-            let manuBox = infoTemplate.clone();
-            manuBox.css('border-top', 'none');
-            manuBox.css('border-bottom', '3px solid rgb(29, 45, 66)');
-            manuBox.css('padding', '0 0 6px 0');
-            manuBox.css('font-size', '0.8em');
-            manuBox.text(pledge.manufacturerNames[0]);
-            infoBox.append(manuBox);
-
-            if (pledge.gamePackage) {
-                infoBox.append(infoTemplate.clone().text("Game Package"));
-            }
-
-            if (pledge.insurance_type == INSURANCE_TYPE_LTI) {
-                infoBox.append(infoTemplate.clone().text("Life Time Insurance"));
-            } else if (pledge.insurance_type != null) {
-                infoBox.append(infoTemplate.clone().text(pledge.insurance_duration + " Month/s Insurance"));
-            }
-
-            $.each(skins, function(skinName, skinNumber) {
-                let searchFor = pledge.shortModel;
-                if (_doStrictSkinSearch[pledge.model] != undefined) searchFor = pledge.model;
-                let append = (skinName.search(new RegExp(searchFor, "i")) != -1);
-
-                // take care of naming mess
-                $.each(pledge.altModelNames, function(ani, altName) {
-                    if (skinName.search(new RegExp(altName, "i")) != -1) {
-                        append = true;
-                        return false;
-                    }
-                });
-
-                // even bigger mess
-                if ((append == true && skinName.search(new RegExp("Ares Radiance", "i")) != -1
-                        && pledge.pledge.search(new RegExp("Radiance", "i")) == -1
-                    )
-                    || (append == true && skinName.search(new RegExp("Ares Ember", "i")) != -1
-                        && pledge.pledge.search(new RegExp("Ember", "i")) == -1
-                    )
-                ) {
-                    append = false;
-                }
-
-                if (append) {
-                    skinName = skinName.replace(pledge.shortModel, "");
-                    skinName = skinName.replace(pledge.model, "");
-                    $.each(pledge.altModelNames, function(ani, altName) {
-                        skinName = skinName.replace(new RegExp(altName, "i"), "");
-                    });
-                    $.each(pledge.manufacturerNames, function(mi, manufacturerName) {
-                        skinName = skinName.replace(new RegExp(manufacturerName, "i"), "");
-                    });
-                    skinName = skinName.replace("-", "");
-                    skinName = skinName.trim();
-                    if (skinNumber > 1) skinName = skinName + " (" + skinNumber + ")";
-                    infoBox.append(infoTemplate.clone().text(skinName));
-                }
+            
+            $.each(upgrades, function(iterator, upgrade) {
+                if (!isShipInString(upgrade.from, ship)) return;
+                upgrade.attached = true;
+                let text = "Upgrade to " + upgrade.to;
+                if (upgrade.count > 1) text = text + " (" + upgrade.count + ")";
+                infos.push(text);
             });
-
-            let inner = $('<div></div>');
-            inner.css('background-color', 'rgba(23,29,37,0.5)');
-            inner.css('padding', '10px');
-            inner.css('margin', '5px');
-
-            inner.append(imageBox);
-            inner.append(infoBox);
-
-            let newEntry = $('<div></div>');
-            newEntry.css('width', '25%');
-            newEntry.css('position', 'relative');
-            newEntry.append(inner);
-            fleetList.append(newEntry);
+                
+            $.each(skins, function(iterator, skin) {
+                if (!isShipInString(skin.title, ship)) return;
+                skin.attached = true;
+                    
+                let skinName = skin.title;
+                skinName = skinName.replace(ship.shortModel, "");
+                skinName = skinName.replace(ship.model, "");
+                $.each(ship.altModelNames, function(ani, altName) {
+                    skinName = skinName.replace(new RegExp(altName, "i"), "");
+                });
+                $.each(ship.manufacturerNames, function(mi, manufacturerName) {
+                    skinName = skinName.replace(new RegExp(manufacturerName, "i"), "");
+                });
+                skinName = skinName.replace("-", "");
+                skinName = skinName.trim();
+                if (skin.count > 1) skinName = skinName + " (" + skin.count + ")";
+                infos.push(skinName);
+            });
+            
+            fleetList.append(renderShip(ship, infos));
         });
 
+        $.each(upgrades, function(iterator, upgrade) {
+            if (upgrade.attached) return;
+            let text = "Upgrade to " + upgrade.to;
+            if (upgrade.count > 1) text = text + " (" + upgrade.count + ")";
+            fleetList.append(renderShip({
+                model: upgrade.from
+            }, [text]));
+        });
+        
         fleetViewLink.attr("href", fleetViewLinkHref);
     };
 
@@ -374,5 +444,3 @@ $(function () {
         $('div.sidenav ul').prepend(newNav);
     }
 });
-
-
