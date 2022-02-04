@@ -374,14 +374,28 @@ $(function () {
             
             fleetList.append(renderShip(ship, infos));
         });
+        
+        let missingUpgradeShips = {};
 
         $.each(upgrades, function(iterator, upgrade) {
             if (upgrade.attached) return;
             let text = "Upgrade to " + upgrade.to;
             if (upgrade.count > 1) text = text + " (" + upgrade.count + ")";
+            
+            if (missingUpgradeShips[upgrade.from] == undefined) {
+                missingUpgradeShips[upgrade.from] = {
+                    shipName: upgrade.from,
+                    upgrades: [text]
+                };
+            } else {
+                missingUpgradeShips[upgrade.from].upgrades.push(text);
+            }
+        });
+        
+        $.each(missingUpgradeShips, function(iterator, missingUpgradeShip) {
             fleetList.append(renderShip({
-                model: upgrade.from
-            }, [text]));
+                model: missingUpgradeShip.shipName
+            }, missingUpgradeShip.upgrades));
         });
         
         fleetViewLink.attr("href", fleetViewLinkHref);
