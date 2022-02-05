@@ -590,4 +590,17 @@ $(function () {
         newNav.find('a').click(renderFleetPage);
         $('div.sidenav ul').prepend(newNav);
     }
+    
+    // CIG seams to store the pagesize in session.
+    // Since we overwrite it with 1 in pledge deeplinks,
+    // we have to fix it in all other links to the pledges list.
+    $("a").each((index, element) => {
+        let href = $(element).attr('href');
+        if (href != undefined && href.search(/^\/account\/pledges/i) != -1) {
+            href = href.replace(/(\&|)pagesize\=\d+(\&|)/, "");
+            let delim = '?';
+            if (href.search(/\?/) != -1) delim = '&';
+            $(element).attr('href', href + delim + 'pagesize=10');
+        }
+    });
 });
