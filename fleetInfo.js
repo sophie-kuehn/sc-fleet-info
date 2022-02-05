@@ -7,6 +7,8 @@ $(function () {
     // Edit this number to your preferences:
     const PLEDGE_LIST_PAGE_SIZE = 10;
 
+    const VERSION = '1.1.0';
+
     const INSURANCE_TYPE_LTI = 'lti';
     const INSURANCE_TYPE_IAE = 'iae';
     const INSURANCE_TYPE_MONTHLY = 'monthly';
@@ -46,6 +48,16 @@ $(function () {
     };
 
     const STYLESHEETS = `
+        .skButtonBox {
+            float: right;
+        }
+        
+        .skButtonBox a {
+            padding: 0;
+            float: right;
+            margin-left: 20px;
+        }
+    
         .skFleetList {
             display: flex;
             flex-wrap: wrap;
@@ -602,10 +614,16 @@ $(function () {
         $('.showFleetsButton').addClass('active');
         let top = $('<div class="top"></div>');
 
-        let fleetViewLinkBox = $('<div></div>');
-        innerContent.append(fleetViewLinkBox);
-        let fleetViewLink = $('<a href="" target="_blank" class="shadow-button trans-02s trans-color" style="padding:0;float:right;"><span class="label js-label trans-02s">show my fleet in 3D</span><span class="left-section"></span><span class="right-section"></span></a>');
-        top.append(fleetViewLink);
+        let buttonBox = $('<div class="skButtonBox"></div>');
+        top.append(buttonBox);
+        let fleetViewLink = $('<a href="" target="_blank" class="shadow-button trans-02s trans-color"><span class="label js-label trans-02s">show my fleet in 3D</span><span class="left-section"></span><span class="right-section"></span></a>');
+        buttonBox.append(fleetViewLink);
+
+        $('<div>').load('https://raw.githubusercontent.com/sophie-kuehn/sc-fleet-info/master/VERSION', function (response, status) {
+            if (response === VERSION) return;
+            let updateLink = $('<a href="https://github.com/sophie-kuehn/sc-fleet-info" target="_blank" class="shadow-button trans-02s trans-color"><span class="label js-label trans-02s">Update available!</span><span class="left-section"></span><span class="right-section"></span></a>');
+            buttonBox.append(updateLink);
+        });
 
         innerContent.empty();
         innerContent.css('box-sizing', 'inherit').append(top);
