@@ -1,7 +1,11 @@
 $(function () {
     'use strict';
 
-    const PLEDGE_LIST_PAGESIZE = 10;
+    // CIG seams to store the pagesize in session.
+    // Since we overwrite it with 1 in pledge deeplinks,
+    // we have to fix it in all other links to the pledges list.
+    // Edit this number to your preferences:
+    const PLEDGE_LIST_PAGE_SIZE = 10;
 
     const INSURANCE_TYPE_LTI = 'lti';
     const INSURANCE_TYPE_IAE = 'iae';
@@ -286,7 +290,6 @@ $(function () {
                         skins[skinTitle].count++;
                     }
 
-                    console.log(skins[skinTitle]);
                     return;
                 }
 
@@ -313,7 +316,6 @@ $(function () {
                         upgrades[upgradeTitle].count++;
                     }
 
-                    console.log(upgrades[upgradeTitle])
                     return;
                 }
 
@@ -484,11 +486,14 @@ $(function () {
 
     const renderFleet = function(fleetList, fleetViewLink)
     {
+        console.log(skins);
+        console.log(upgrades);
+        console.log(ships);
+
         fleetList.empty();
         let fleetViewLinkHref = "http://www.starship42.com/fleetview/?type=matrix";
 
         $.each(ships, function(index, ship) {
-            console.log(ship);
             fleetViewLinkHref = fleetViewLinkHref + "&s[]=" + ship.model;
             let infos = [];
 
@@ -638,7 +643,7 @@ $(function () {
             href = href.replace(/(\&|)pagesize\=\d+(\&|)/, "");
             let delim = '?';
             if (href.search(/\?/) != -1) delim = '&';
-            $(element).attr('href', href + delim + 'pagesize=' + PLEDGE_LIST_PAGESIZE);
+            $(element).attr('href', href + delim + 'pagesize=' + PLEDGE_LIST_PAGE_SIZE);
         }
     });
 

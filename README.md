@@ -21,6 +21,8 @@ I use [https://addons.mozilla.org/de/firefox/addon/codeinjector](https://addons.
 
 It's also available for Chrome.
 
+Due to some fancy caching by CIG, i had to add a fix for the pagesize of the normal pledge list. You might want to edit the PLEDGE_LIST_PAGE_SIZE property at the top of the script.
+
 ![example](example_use.jpg)
 
 ## Acknowledgment
