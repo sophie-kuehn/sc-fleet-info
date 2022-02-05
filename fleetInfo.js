@@ -7,7 +7,7 @@ $(function () {
     // Edit this number to your preferences:
     const PLEDGE_LIST_PAGE_SIZE = 10;
 
-    const VERSION = '1.1.0';
+    const VERSION = '1.1.1';
 
     const INSURANCE_TYPE_LTI = 'lti';
     const INSURANCE_TYPE_IAE = 'iae';
@@ -34,6 +34,7 @@ $(function () {
         'XIAN': ['Xi\'an'],
     };
 
+    // when matching these models, look for the stated alternative names
     const ALTERNATIVE_SHIP_MODEL_NAMES = {
         'Mercury Star Runner': ['Star Runner'],
         'GRIN ROC DS': ['ROC'],
@@ -42,9 +43,17 @@ $(function () {
         '135c': ['100 series']
     };
 
-    const STRICT_SKIN_SEARCH = {
+    // when matching these models, don't use the soft short name matching
+    const STRICT_SHIP_MATCHING = {
         'Sabre Raven': true,
         'Hull D': true
+    };
+    
+    // if these are found in the skin name, expect the model name (needed eg for sub-type-only skins)
+    const STRICT_SHIP_MATCHING_REVERSE = {
+        'Cutlass Black': 'Cutlass Black',
+        'Ares Radiance': 'Radiance',
+        'Ares Ember': 'Ember'
     };
 
     const STYLESHEETS = `
@@ -176,7 +185,6 @@ $(function () {
     let upgrades = {};
 
     const prepareShipInfo = function(
-        pledgeName,
         pledgeNumber,
         name,
         model,
@@ -187,7 +195,6 @@ $(function () {
         image
     ) {
         let ship = {
-            pledgeName: pledgeName,
             pledgeNumber: pledgeNumber,
             insuranceType: insuranceType,
             insuranceDuration: insuranceDuration,
@@ -204,7 +211,7 @@ $(function () {
         model = model.replace(/-/gi, '').trim();
         ship.model = model;
         ship.shortModel = model.split(' ')[0];
-        ship.altModelNames = ALTERNATIVE_SHIP_MODEL_NAMES[ship.model] || []
+        ship.altModelNames = ALTERNATIVE_SHIP_MODEL_NAMES[ship.model] || [];
 
         return ship;
     };
@@ -262,7 +269,6 @@ $(function () {
                 if (/Origin\s+G12[ar]/i.test(bonus)) {
                     const shipInfoRegexResult = /(Origin)\s+(G12[ar])/i.exec(bonus);
                     ships.push(prepareShipInfo(
-                        $('.js-pledge-name', $pledge).val(),
                         pledgeNumber,
                         '',
                         shipInfoRegexResult[2],
@@ -338,7 +344,6 @@ $(function () {
 
                         // Found the ship "Greycat PTV" from "Greycat Industrial"
                         ships.push(prepareShipInfo(
-                            $('.js-pledge-name', $pledge).val(),
                             pledgeNumber,
                             '',
                             $('.title', $item).text(),
@@ -355,7 +360,6 @@ $(function () {
                 // ship
                 if ($item.find('.kind:contains(Ship)').length !== 0) {
                     ships.push(prepareShipInfo(
-                        $pledge,
                         pledgeNumber,
                         $('.custom-name', $item).text(),
                         $('.title', $item).text(),
@@ -370,31 +374,31 @@ $(function () {
         })
     };
 
-    const isShipInString = function(haystack, pledge)
+    const stringMatchesShip = function(haystack, ship, strict = false)
     {
-        let searchFor = pledge.shortModel;
-        if (STRICT_SKIN_SEARCH[pledge.model] !== undefined) searchFor = pledge.model;
-        let result = (haystack.search(new RegExp(searchFor, "i")) !== -1);
+        if (haystack.search(new RegExp(ship.model, "i")) !== -1) return true;
 
-        // take care of naming mess
-        $.each(pledge.altModelNames, function(ani, altName) {
-            if (haystack.search(new RegExp(altName, "i")) !== -1) {
-                result = true;
-                return false;
+        let altNameFound = false;
+        $.each(ship.altModelNames, function(iterator, name) {
+            if (haystack.search(new RegExp(name, "i")) !== -1) {
+                altNameFound = true;
+                return false; // stopping $.each
             }
         });
 
-        // even bigger mess
-        if ((result === true && haystack.search(new RegExp("Ares Radiance", "i")) !== -1
-                && pledge.pledgeName.search(new RegExp("Radiance", "i")) === -1
-            )
-            || (result === true && haystack.search(new RegExp("Ares Ember", "i")) !== -1
-                && pledge.pledgeName.search(new RegExp("Ember", "i")) === -1
-            )
-        ) {
-            result = false;
-        }
+        if (altNameFound) return true
+        if (strict || STRICT_SHIP_MATCHING[ship.model] !== undefined) return false;
+        if (haystack.search(new RegExp(ship.shortModel, "i")) === -1) return false;
 
+        let result = true;
+        $.each(STRICT_SHIP_MATCHING_REVERSE, function(needle, model) {
+            if (haystack.search(new RegExp(needle, "i")) !== -1
+                && ship.model.search(new RegExp(model, "i")) === -1
+            ) {
+                result = false;
+                return false; // stopping $.each
+            }
+        });
         return result;
     };
 
@@ -520,7 +524,7 @@ $(function () {
             }
 
             $.each(upgrades, function(iterator, upgrade) {
-                if (!isShipInString(upgrade.from, ship)) return;
+                if (!stringMatchesShip(upgrade.from, ship, true)) return;
                 upgrade.attached = true;
                 let text = "Upgrade to " + upgrade.to;
                 if (upgrade.count > 1) text = text + " (" + upgrade.count + ")";
@@ -532,12 +536,12 @@ $(function () {
             });
 
             $.each(skins, function(iterator, skin) {
-                if (!isShipInString(skin.title, ship)) return;
+                if (!stringMatchesShip(skin.title, ship)) return;
                 skin.attached = true;
 
                 let skinName = skin.title;
-                skinName = skinName.replace(ship.shortModel, "");
                 skinName = skinName.replace(ship.model, "");
+                skinName = skinName.replace(ship.shortModel, "");
                 $.each(ship.altModelNames, function(ani, altName) {
                     skinName = skinName.replace(new RegExp(altName, "i"), "");
                 });
