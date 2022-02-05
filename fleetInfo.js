@@ -1,5 +1,6 @@
 $(function () {
     'use strict';
+    
     let ships = [];
     let skins = {};
     let upgrades = {};
@@ -342,6 +343,8 @@ $(function () {
     htmlTemplates.modelBoxIcons.css("position", "absolute");
     htmlTemplates.modelBoxIcons.css("right", "0");
     htmlTemplates.modelBoxIcons.css("top", "0");
+    htmlTemplates.modelBoxIcons.css('margin', '0');
+    htmlTemplates.modelBoxIcons.css('padding', '0'); 
     
     htmlTemplates.manufacturerBox = htmlTemplates.infoLine.clone();
     htmlTemplates.manufacturerBox.css('border-top', 'none');
