@@ -386,7 +386,7 @@ $(function () {
             }
         });
 
-        if (altNameFound) return true
+        if (altNameFound) return true;
         if (strict || STRICT_SHIP_MATCHING[ship.model] !== undefined) return false;
         if (haystack.search(new RegExp(ship.shortModel, "i")) === -1) return false;
 
