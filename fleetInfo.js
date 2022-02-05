@@ -1,15 +1,13 @@
 $(function () {
     'use strict';
-    
-    let ships = [];
-    let skins = {};
-    let upgrades = {};
+
+    const PLEDGE_LIST_PAGESIZE = 10;
 
     const INSURANCE_TYPE_LTI = 'lti';
     const INSURANCE_TYPE_IAE = 'iae';
     const INSURANCE_TYPE_MONTHLY = 'monthly';
 
-    const manufacturerShortMap = {
+    const MANUFACTURER_MAP = {
         'ANVL': ['Anvil Aerospace', 'Anvil'],
         'AEGS': ['Aegis Dynamics', 'Aegis'],
         'AOPOA': ['Aopoa'],
@@ -30,7 +28,7 @@ $(function () {
         'XIAN': ['Xi\'an'],
     };
 
-    const altShipNames = {
+    const ALTERNATIVE_SHIP_MODEL_NAMES = {
         'Mercury Star Runner': ['Star Runner'],
         'GRIN ROC DS': ['ROC'],
         '100i': ['100 series'],
@@ -38,20 +36,138 @@ $(function () {
         '135c': ['100 series']
     };
 
-    const doStrictSkinSearch = {
+    const STRICT_SKIN_SEARCH = {
         'Sabre Raven': true,
         'Hull D': true
     };
 
+    const STYLESHEETS = `
+        .skFleetList {
+            display: flex;
+            flex-wrap: wrap;
+            color: #bdced4;
+            font-size: 0.8em;
+        }
+        
+        .skFleetList a {
+            color: rgb(189, 206, 212);
+        }
+        
+        .skShipBox {
+            width: 25%;
+            position: relative;
+        }
+        
+        .skInnerShipBox {
+            background-color: rgba(23,29,37,0.5);
+            padding: 10px;
+            margin: 5px;
+        }
+        
+        .skImageBox {
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 110px;
+        }
+        
+        .skInfoBox {
+            margin: 0;
+            padding: 0;
+        }
+        
+        .skInfoLine {
+            border-top: 1px solid rgb(29, 45, 66);
+            padding: 3px 0;
+            position: relative;
+        }
+        
+        .skInfoLineOverlay {
+            position: absolute;
+            right: 110%;
+            top: 0;
+            padding: 3px;
+            border: 3px solid rgb(29, 45, 66);
+            background-color: rgba(23, 29, 37, 0.5);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: none;
+            z-index: 999;
+        }
+        
+        .skNameBox {
+            border-top: none;
+            padding: 3px 0 0 0;
+            font-size: 1.2em;
+            color: rgb(97, 216, 253);
+        }
+        
+        .skModelBox {
+            border-top: none;
+            padding: 3px 0 0 0;
+            position: relative;
+        }
+        
+        .skModelBoxBelowName {
+            font-size: 0.9em;
+        }
+        
+        .skModelBoxStandAlone {
+            padding: 3px 0 0 0;
+            font-size: 1.2em;
+            color: rgb(97, 216, 253);
+        }
+        
+        .skModelBoxStandAlone a {
+            color: rgb(97, 216, 253);
+        }
+        
+        .skModelBoxIcons {
+            position: absolute;
+            right: 0;
+            top: 0;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .skManufacturerBox {
+            border-top: none;
+            border-bottom: 3px solid rgb(29, 45, 66);
+            padding: 0 0 6px 0;
+            font-size: 0.8em;
+        }
+    `;
+
+    const HTML_TPL = {};
+    HTML_TPL.link = $('<a target="_blank"></a>');
+    HTML_TPL.shipList = $('<div class="skFleetList"></div>');
+    HTML_TPL.shipBox = $('<div class="skShipBox"></div>');
+    HTML_TPL.shipBoxInner = $('<div class="skInnerShipBox"></div>');
+    HTML_TPL.imageBox = $('<div class="skImageBox"></div>');
+    HTML_TPL.infoBox = $('<ul class="skInfoBox"></ul>');
+    HTML_TPL.infoLine = $('<li class="skInfoLine"></li>');
+    HTML_TPL.infoLineOverlay = $('<div class="skInfoLineOverlay"></div>');
+    HTML_TPL.nameBox =  $('<li class="skInfoLine skNameBox"></li>');
+    HTML_TPL.modelBox =  $('<li class="skInfoLine skModelBox"></li>');
+    HTML_TPL.modelBoxBelowName =  $('<li class="skInfoLine skModelBox skModelBoxBelowName"></li>');
+    HTML_TPL.modelBoxStandAlone =  $('<li class="skInfoLine skModelBox skModelBoxStandAlone"></li>');
+    HTML_TPL.modelBoxIcons = $('<ul class="skModelBoxIcons"></ul>');
+    HTML_TPL.manufacturerBox =  $('<li class="skInfoLine skManufacturerBox"></li>');
+
+    let ships = [];
+    let skins = {};
+    let upgrades = {};
+
     const prepareShipInfo = function(
-        pledgeName, 
+        pledgeName,
         pledgeNumber,
-        name, 
-        model, 
-        manufacturer, 
-        insuranceType, 
-        insuranceDuration, 
-        gamePackage, 
+        name,
+        model,
+        manufacturer,
+        insuranceType,
+        insuranceDuration,
+        gamePackage,
         image
     ) {
         let ship = {
@@ -62,23 +178,23 @@ $(function () {
             image: image,
             gamePackage: gamePackage,
             name: name,
-            manufacturerNames: manufacturerShortMap[manufacturer] || [manufacturer]
+            manufacturerNames: MANUFACTURER_MAP[manufacturer] || [manufacturer]
         };
 
         $.each(ship.manufacturerNames, function(mi, manufacturerName) {
             model = model.replace(new RegExp(manufacturerName, 'gi'), '');
         });
 
-        model = model.replace(/\-/gi, '').trim();
+        model = model.replace(/-/gi, '').trim();
         ship.model = model;
         ship.shortModel = model.split(' ')[0];
-        ship.altModelNames = altShipNames[ship.model] || []
+        ship.altModelNames = ALTERNATIVE_SHIP_MODEL_NAMES[ship.model] || []
 
         return ship;
     };
 
     let pledgeNumber = 0;
-    const processPledges = function(body) 
+    const processPledges = function(body)
     {
         $('.list-items li', body).each((index, el) => {
             pledgeNumber++;
@@ -111,14 +227,14 @@ $(function () {
             let insuranceType = null;
             let insuranceDuration = null;
 
-            if (insurances.lti != undefined) {
+            if (insurances.lti !== undefined) {
                 insuranceType = INSURANCE_TYPE_LTI;
             }
-            else if (insurances.iae != undefined) {
+            else if (insurances.iae !== undefined) {
                 insuranceType = INSURANCE_TYPE_IAE;
                 insuranceDuration = 120;
             }
-            else if (insurances.monthly != undefined) {
+            else if (insurances.monthly !== undefined) {
                 insuranceType = INSURANCE_TYPE_MONTHLY;
                 insuranceDuration = insurances.monthly;
             }
@@ -151,14 +267,14 @@ $(function () {
                 if ($item.find('.image').length !== 0) {
                     itemImage = $('.image', $item).css('background-image');
                 }
-                    
+
                 // skins
-                if ($item.find('.kind:contains(Skin)').length !== 0 
+                if ($item.find('.kind:contains(Skin)').length !== 0
                     || $item.find('.title:contains(Paint)').length !== 0
                 ) {
                     let skinTitle = $('.title', $item).text();
-                    
-                    if (skins[skinTitle] == undefined) {
+
+                    if (skins[skinTitle] === undefined) {
                         skins[skinTitle] = {
                             title: skinTitle,
                             pledgeNumber: pledgeNumber,
@@ -169,11 +285,11 @@ $(function () {
                     } else {
                         skins[skinTitle].count++;
                     }
-                    
+
                     console.log(skins[skinTitle]);
                     return;
                 }
-                
+
                 // upgrades
                 if ($item.find('.title:contains(Upgrade -)').length !== 0
                     && $item.find('.title:contains( to )').length !== 0
@@ -182,8 +298,8 @@ $(function () {
                     upgradeTitle = upgradeTitle.replace("Standard Edition", "");
                     upgradeTitle = upgradeTitle.trim();
                     let parts = upgradeTitle.split('-')[1].split(' to ')
-                    
-                    if (upgrades[upgradeTitle] == undefined) {
+
+                    if (upgrades[upgradeTitle] === undefined) {
                         upgrades[upgradeTitle] = {
                             title: upgradeTitle,
                             pledgeNumber: pledgeNumber,
@@ -196,7 +312,7 @@ $(function () {
                     } else {
                         upgrades[upgradeTitle].count++;
                     }
-                    
+
                     console.log(upgrades[upgradeTitle])
                     return;
                 }
@@ -239,159 +355,75 @@ $(function () {
             });
         })
     };
-    
+
     const isShipInString = function(haystack, pledge)
     {
         let searchFor = pledge.shortModel;
-        if (doStrictSkinSearch[pledge.model] != undefined) searchFor = pledge.model;
-        let result = (haystack.search(new RegExp(searchFor, "i")) != -1);
+        if (STRICT_SKIN_SEARCH[pledge.model] !== undefined) searchFor = pledge.model;
+        let result = (haystack.search(new RegExp(searchFor, "i")) !== -1);
 
         // take care of naming mess
         $.each(pledge.altModelNames, function(ani, altName) {
-            if (haystack.search(new RegExp(altName, "i")) != -1) {
+            if (haystack.search(new RegExp(altName, "i")) !== -1) {
                 result = true;
                 return false;
             }
         });
 
         // even bigger mess
-        if ((result == true && haystack.search(new RegExp("Ares Radiance", "i")) != -1
-                && pledge.pledgeName.search(new RegExp("Radiance", "i")) == -1
+        if ((result === true && haystack.search(new RegExp("Ares Radiance", "i")) !== -1
+                && pledge.pledgeName.search(new RegExp("Radiance", "i")) === -1
             )
-            || (result == true && haystack.search(new RegExp("Ares Ember", "i")) != -1
-                && pledge.pledgeName.search(new RegExp("Ember", "i")) == -1
+            || (result === true && haystack.search(new RegExp("Ares Ember", "i")) !== -1
+                && pledge.pledgeName.search(new RegExp("Ember", "i")) === -1
             )
         ) {
             result = false;
         }
-        
+
         return result;
     };
-    
-    const htmlTemplates = {};
-    
-    htmlTemplates.link = $('<a></a>');
-    htmlTemplates.link.css('color', 'rgb(189, 206, 212)');
-    htmlTemplates.link.attr('target', '_blank');
-    
-    htmlTemplates.shipList = $('<div class="fleetList"></div>');
-    htmlTemplates.shipList.css('display', 'flex');
-    htmlTemplates.shipList.css('flex-wrap', 'wrap');
-    htmlTemplates.shipList.css('color', '#bdced4');
-    htmlTemplates.shipList.css('font-size', '0.8em');
-        
-    htmlTemplates.shipBox = $('<div></div>');
-    htmlTemplates.shipBox.css('width', '25%');
-    htmlTemplates.shipBox.css('position', 'relative');
-        
-    htmlTemplates.shipBox = $('<div></div>');
-    htmlTemplates.shipBox.css('width', '25%');
-    htmlTemplates.shipBox.css('position', 'relative');
-        
-    htmlTemplates.shipBoxInner = $('<div></div>');
-    htmlTemplates.shipBoxInner.css('background-color', 'rgba(23,29,37,0.5)');
-    htmlTemplates.shipBoxInner.css('padding', '10px');
-    htmlTemplates.shipBoxInner.css('margin', '5px');
 
-    htmlTemplates.imageBox = $('<div></div>');
-    htmlTemplates.imageBox.css('background-size', 'cover');
-    htmlTemplates.imageBox.css('background-position', 'center');
-    htmlTemplates.imageBox.css('background-repeat', 'no-repeat');
-    htmlTemplates.imageBox.css('height', '110px');
-             
-    htmlTemplates.infoBox = $('<ul></ul>');
-    htmlTemplates.infoBox.css('margin', '0');
-    htmlTemplates.infoBox.css('padding', '0'); 
-  
-    htmlTemplates.infoLine = $('<li></li>');
-    htmlTemplates.infoLine.css('border-top', '1px solid rgb(29, 45, 66)');
-    htmlTemplates.infoLine.css('padding', '3px 0');
-    htmlTemplates.infoLine.css("position", "relative");
-    
-    htmlTemplates.infoLineOverlay = $('<div></div>');
-    htmlTemplates.infoLineOverlay.css("position", "absolute");
-    htmlTemplates.infoLineOverlay.css("right", "105%");
-    htmlTemplates.infoLineOverlay.css("top", "0");
-    htmlTemplates.infoLineOverlay.css("padding", "3px");
-    htmlTemplates.infoLineOverlay.css("border", "3px solid rgb(29, 45, 66)");
-    htmlTemplates.infoLineOverlay.css("background-color", "rgba(23, 29, 37, 0.5)");
-    htmlTemplates.infoLineOverlay.css('background-size', 'cover');
-    htmlTemplates.infoLineOverlay.css('background-position', 'center');
-    htmlTemplates.infoLineOverlay.css('background-repeat', 'no-repeat');
-    htmlTemplates.infoLineOverlay.css("display", "none");
-    htmlTemplates.infoLineOverlay.css("z-index", "999");
-    
-    htmlTemplates.nameBox = htmlTemplates.infoLine.clone();
-    htmlTemplates.nameBox.css('border-top', 'none');
-    htmlTemplates.nameBox.css('padding', '3px 0 0 0');
-    htmlTemplates.nameBox.css('font-size', '1.2em');
-    htmlTemplates.nameBox.css('color', '#fff');
-    
-    htmlTemplates.modelBox = htmlTemplates.infoLine.clone();
-    htmlTemplates.modelBox.css('border-top', 'none');
-    htmlTemplates.modelBox.css('padding', '3px 0 0 0');
-    htmlTemplates.modelBox.css("position", "relative");
-    
-    htmlTemplates.modelBoxBelowName = htmlTemplates.modelBox.clone();
-    htmlTemplates.modelBoxBelowName.css('font-size', '0.9em');
-    
-    htmlTemplates.modelBoxStandAlone = htmlTemplates.modelBox.clone();
-    htmlTemplates.modelBoxStandAlone.css('padding', '3px 0 0 0');
-    htmlTemplates.modelBoxStandAlone.css('font-size', '1.2em');
-    
-    htmlTemplates.modelBoxIcons = $('<ul></ul>');
-    htmlTemplates.modelBoxIcons.css("position", "absolute");
-    htmlTemplates.modelBoxIcons.css("right", "0");
-    htmlTemplates.modelBoxIcons.css("top", "0");
-    htmlTemplates.modelBoxIcons.css('margin', '0');
-    htmlTemplates.modelBoxIcons.css('padding', '0'); 
-    
-    htmlTemplates.manufacturerBox = htmlTemplates.infoLine.clone();
-    htmlTemplates.manufacturerBox.css('border-top', 'none');
-    htmlTemplates.manufacturerBox.css('border-bottom', '3px solid rgb(29, 45, 66)');
-    htmlTemplates.manufacturerBox.css('padding', '0 0 6px 0');
-    htmlTemplates.manufacturerBox.css('font-size', '0.8em');
-        
     const getPledgeLink = function(pledgeNumber)
     {
         return 'https://robertsspaceindustries.com/account/pledges?page=' + pledgeNumber + '&pagesize=1';
-    }
-        
-    const prepareLink = function(content, href)
+    };
+
+    const prepareLink = function(content, href, colored)
     {
-        let link = htmlTemplates.link.clone();
+        let link = HTML_TPL.link.clone();
         link.attr('href', href);
         link.append(content);
         return link;
-    }
-    
+    };
+
     const renderShip = function(ship, infos)
     {
-        let inner = htmlTemplates.shipBoxInner.clone();
+        let inner = HTML_TPL.shipBoxInner.clone();
 
         // image
-        if (ship.image != undefined) {
-            let imageBox = htmlTemplates.imageBox.clone();
+        if (ship.image !== undefined) {
+            let imageBox = HTML_TPL.imageBox.clone();
             imageBox.css('background-image', ship.image);
             inner.append(imageBox);
         }
-        
+
         // infos below image
-        let infoBox = htmlTemplates.infoBox.clone();
+        let infoBox = HTML_TPL.infoBox.clone();
         inner.append(infoBox);
-             
+
         // individual ship name + model name
         let modelBox;
-        if (ship.name != undefined 
+        if (ship.name !== undefined
             && ship.name.length > 0
         ) {
-            let nameBox = htmlTemplates.nameBox.clone();
+            let nameBox = HTML_TPL.nameBox.clone();
             nameBox.text(ship.name);
             infoBox.append(nameBox);
-            
-            modelBox = htmlTemplates.modelBoxBelowName.clone();
+
+            modelBox = HTML_TPL.modelBoxBelowName.clone();
         } else {
-            modelBox = htmlTemplates.modelBoxStandAlone.clone();
+            modelBox = HTML_TPL.modelBoxStandAlone.clone();
         }
 
         modelBox.append(prepareLink(
@@ -399,58 +431,58 @@ $(function () {
             getPledgeLink(ship.pledgeNumber)
         ));
         infoBox.append(modelBox);
-        
+
         // icons on the right of ship model name
-        let icons = htmlTemplates.modelBoxIcons.clone();
+        let icons = HTML_TPL.modelBoxIcons.clone();
         modelBox.append(icons);
-        
+
         let fyLink = $('<li></li>')
         fyLink.append(prepareLink(
             $('<img title="FleetYards" width="15"  src="https://fleetyards.net/packs/media/images/favicon-small-76fc2169b09909bd82901f49ca7ab702.png" />'),
             'https://fleetyards.net/ships/' + ship.model.replace(/ /g, "-").toLowerCase() + '/'
         ));
         icons.append(fyLink);
-               
+
         // manufacturer
-        let manuBox = htmlTemplates.manufacturerBox.clone();        
-        if (ship.manufacturerNames != undefined 
+        let manuBox = HTML_TPL.manufacturerBox.clone();
+        if (ship.manufacturerNames !== undefined
             && ship.manufacturerNames.length >= 1
         ) manuBox.text(ship.manufacturerNames[0]);
         infoBox.append(manuBox)
 
         // additional lines of info
         $.each(infos, function(iterator, info) {
-            let infoLine = htmlTemplates.infoLine.clone();
-            
-            if (info.link != undefined && info.link.length > 0) {
+            let infoLine = HTML_TPL.infoLine.clone();
+
+            if (info.link !== undefined && info.link.length > 0) {
                 infoLine.append(prepareLink(info.text, info.link));
             } else {
                 infoLine.text(info.text);
             }
-            
-            if (info.image != undefined && info.image.length > 0) {
-                let overlay = htmlTemplates.infoLineOverlay.clone();     
+
+            if (info.image !== undefined && info.image.length > 0) {
+                let overlay = HTML_TPL.infoLineOverlay.clone();
                 overlay.css("background-image", info.image);
                 overlay.css("width", "130px");
                 overlay.css("height", "80px");
-                
+
                 infoLine.append(overlay);
-                infoLine.hover(function(){ 
+                infoLine.hover(function(){
                     overlay.css("display", "block");
-                }, function(){ 
+                }, function(){
                     overlay.css("display", "none");
                 });
             }
-            
+
             infoBox.append(infoLine);
         });
 
-        let shipBox = htmlTemplates.shipBox.clone();
+        let shipBox = HTML_TPL.shipBox.clone();
         shipBox.append(inner);
         return shipBox;
     };
-    
-    const renderFleet = function(fleetList, fleetViewLink) 
+
+    const renderFleet = function(fleetList, fleetViewLink)
     {
         fleetList.empty();
         let fleetViewLinkHref = "http://www.starship42.com/fleetview/?type=matrix";
@@ -459,33 +491,33 @@ $(function () {
             console.log(ship);
             fleetViewLinkHref = fleetViewLinkHref + "&s[]=" + ship.model;
             let infos = [];
-            
+
             if (ship.gamePackage) {
                 infos.push({text:"Game Package"});
             }
 
-            if (ship.insuranceType == INSURANCE_TYPE_LTI) {
+            if (ship.insuranceType === INSURANCE_TYPE_LTI) {
                 infos.push({text:"Life Time Insurance"});
             } else if (ship.insuranceType != null) {
                 infos.push({text:ship.insuranceDuration + " Month/s Insurance"});
             }
-            
+
             $.each(upgrades, function(iterator, upgrade) {
                 if (!isShipInString(upgrade.from, ship)) return;
                 upgrade.attached = true;
                 let text = "Upgrade to " + upgrade.to;
                 if (upgrade.count > 1) text = text + " (" + upgrade.count + ")";
                 infos.push({
-                    text: text, 
+                    text: text,
                     image: upgrade.image,
                     link: getPledgeLink(upgrade.pledgeNumber)
                 });
             });
-                
+
             $.each(skins, function(iterator, skin) {
                 if (!isShipInString(skin.title, ship)) return;
                 skin.attached = true;
-                    
+
                 let skinName = skin.title;
                 skinName = skinName.replace(ship.shortModel, "");
                 skinName = skinName.replace(ship.model, "");
@@ -499,16 +531,16 @@ $(function () {
                 skinName = skinName.trim();
                 if (skin.count > 1) skinName = skinName + " (" + skin.count + ")";
                 infos.push({
-                    text: skinName, 
+                    text: skinName,
                     image: skin.image,
                     link: getPledgeLink(skin.pledgeNumber)
                 });
-                
+
             });
-            
+
             fleetList.append(renderShip(ship, infos));
         });
-        
+
         let missingUpgradeShips = {};
 
         $.each(upgrades, function(iterator, upgrade) {
@@ -516,12 +548,12 @@ $(function () {
             let text = "Upgrade to " + upgrade.to;
             if (upgrade.count > 1) text = text + " (" + upgrade.count + ")";
             let info = {
-                text: text, 
+                text: text,
                 image: upgrade.image,
                 link: getPledgeLink(upgrade.pledgeNumber)
             };
-            
-            if (missingUpgradeShips[upgrade.from] == undefined) {
+
+            if (missingUpgradeShips[upgrade.from] === undefined) {
                 missingUpgradeShips[upgrade.from] = {
                     shipName: upgrade.from,
                     upgrades: [{text:"No ship"}, info]
@@ -530,22 +562,22 @@ $(function () {
                 missingUpgradeShips[upgrade.from].upgrades.push(info);
             }
         });
-        
+
         $.each(missingUpgradeShips, function(iterator, missingUpgradeShip) {
             fleetList.append(renderShip({
                 model: missingUpgradeShip.shipName
             }, missingUpgradeShip.upgrades));
         });
-        
+
         fleetViewLink.attr("href", fleetViewLinkHref);
     };
 
     let dataLoaded = false;
-    const loadData = function(page, callback) 
+    const loadData = function(page, callback)
     {
         if (dataLoaded) return callback();
 
-        const url = '/account/pledges?pagesize=20&page=' + page;
+        const url = '/account/pledges?pagesize=50&page=' + page;
         const $page = $('<div>');
         $page.load(url + ' .page-wrapper', function (response, status) {
             if ($('.list-items .empy-list', this).length > 0) {
@@ -557,32 +589,35 @@ $(function () {
         });
     };
 
-    const renderFleetPage = function() 
+    const renderFleetPage = function()
     {
+        let innerContent = $('.inner-content');
+        
         $('div.sidenav ul li').removeClass('active');
         $('.showFleetsButton').addClass('active');
         let top = $('<div class="top"></div>');
 
         let fleetViewLinkBox = $('<div></div>');
-        $('.inner-content').append(fleetViewLinkBox);
+        innerContent.append(fleetViewLinkBox);
         let fleetViewLink = $('<a href="" target="_blank" class="shadow-button trans-02s trans-color" style="padding:0;float:right;"><span class="label js-label trans-02s">show my fleet in 3D</span><span class="left-section"></span><span class="right-section"></span></a>');
         top.append(fleetViewLink);
 
-        $('.inner-content').empty().css('box-sizing', 'inherit').append(top);
+        innerContent.empty();
+        innerContent.css('box-sizing', 'inherit').append(top);
         let title = $('<h2 class="title">MY FLEET</h2>');
         top.append(title);
 
         let sep = $('<div style="clear:both" class="separator"></div>');
         top.append(sep);
 
-        let fleetList = htmlTemplates.shipList.clone();
-        $('.inner-content').append(fleetList);
+        let fleetList = HTML_TPL.shipList.clone();
+        innerContent.append(fleetList);
 
         loadData(1, function(){
             renderFleet(fleetList, fleetViewLink);
         });
     };
-    
+
     let nav = $('div.sidenav ul li');
     if (nav.length > 0) {
         let newNav = $(nav[0]).clone();
@@ -593,7 +628,7 @@ $(function () {
         newNav.find('a').click(renderFleetPage);
         $('div.sidenav ul').prepend(newNav);
     }
-    
+
     // CIG seams to store the pagesize in session.
     // Since we overwrite it with 1 in pledge deeplinks,
     // we have to fix it in all other links to the pledges list.
@@ -603,7 +638,9 @@ $(function () {
             href = href.replace(/(\&|)pagesize\=\d+(\&|)/, "");
             let delim = '?';
             if (href.search(/\?/) != -1) delim = '&';
-            $(element).attr('href', href + delim + 'pagesize=10');
+            $(element).attr('href', href + delim + 'pagesize=' + PLEDGE_LIST_PAGESIZE);
         }
     });
+
+    $('head').append('<style type="text/css">' + STYLESHEETS + '</style>');
 });
