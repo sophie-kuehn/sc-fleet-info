@@ -7,7 +7,7 @@ $(function () {
     // Edit this number to your preferences:
     const PLEDGE_LIST_PAGE_SIZE = 10;
 
-    const VERSION = '1.1.2';
+    const VERSION = '1.2.0';
 
     const INSURANCE_TYPE_LTI = 'lti';
     const INSURANCE_TYPE_IAE = 'iae';
@@ -135,6 +135,11 @@ $(function () {
             position: relative;
         }
         
+        .skModelBox a {
+            display: inline-block;
+            width: 90%;
+        }
+        
         .skModelBoxBelowName {
             font-size: 0.9em;
         }
@@ -195,6 +200,8 @@ $(function () {
         gamePackage,
         image
     ) {
+        let bestInShowMatch = /\d+\sBest\sin\sShow/gi;
+
         let ship = {
             pledgeNumber: pledgeNumber,
             insuranceType: insuranceType,
@@ -202,7 +209,8 @@ $(function () {
             image: image,
             gamePackage: gamePackage,
             name: name,
-            manufacturerNames: MANUFACTURER_MAP[manufacturer] || [manufacturer]
+            manufacturerNames: MANUFACTURER_MAP[manufacturer] || [manufacturer],
+            bestInShow: model.search(bestInShowMatch) !== -1
         };
 
         $.each(ship.manufacturerNames, function(mi, manufacturerName) {
@@ -210,7 +218,7 @@ $(function () {
         });
 
         model = model.replace(/-/gi, '');
-        model = model.replace(/\d+\sBest\sin\sShow/gi, '');
+        model = model.replace(bestInShowMatch, '');
         model = model.trim();
 
         ship.model = model;
@@ -519,6 +527,10 @@ $(function () {
 
             if (ship.gamePackage) {
                 infos.push({text:"Game Package"});
+            }
+
+            if (ship.bestInShow) {
+                infos.push({text:"Best in Show Variant"});
             }
 
             if (ship.insuranceType === INSURANCE_TYPE_LTI) {
