@@ -7,7 +7,7 @@ $(function () {
     // Edit this number to your preferences:
     const PLEDGE_LIST_PAGE_SIZE = 10;
 
-    const VERSION = '1.1.1';
+    const VERSION = '1.1.2';
 
     const INSURANCE_TYPE_LTI = 'lti';
     const INSURANCE_TYPE_IAE = 'iae';
@@ -26,6 +26,7 @@ $(function () {
         'ESPR': ['Esperia'],
         'GRIN': ['Greycat Industrial', 'Greycat'],
         'KRGR': ['Kruger Intergalactic', 'Kruger'],
+        'KRIG': ['Kruger Intergalactic', 'Kruger'],
         'MISC': ['MISC', 'Musashi Industrial & Starflight Concern', 'M.I.S.C.'],
         'ORIG': ['Origin Jumpworks', 'Origin Jumpworks GmbH', 'Origin'],
         'RSI': ['Roberts Space Industries', 'RSI', 'R.S.I.'],
@@ -208,7 +209,10 @@ $(function () {
             model = model.replace(new RegExp(manufacturerName, 'gi'), '');
         });
 
-        model = model.replace(/-/gi, '').trim();
+        model = model.replace(/-/gi, '');
+        model = model.replace(/\d+\sBest\sin\sShow/gi, '');
+        model = model.trim();
+
         ship.model = model;
         ship.shortModel = model.split(' ')[0];
         ship.altModelNames = ALTERNATIVE_SHIP_MODEL_NAMES[ship.model] || [];
