@@ -14,7 +14,7 @@ WIP prototype, so it's quite dirty. Expect bugs.
 There is no dedicated browser extension yet.
 
 Best way is to use any script injection plugin for your browser and inject the 
-contents of fleetInfo.js on "https://robertsspaceindustries.com/account" and its sub pages.
+[contents of fleetInfo.js](https://raw.githubusercontent.com/sophie-kuehn/sc-fleet-info/master/fleetInfo.js) on "https://robertsspaceindustries.com/account" and its sub pages.
 
 I use [https://addons.mozilla.org/de/firefox/addon/codeinjector](https://addons.mozilla.org/de/firefox/addon/codeinjector)
 ([https://github.com/Lor-Saba/Code-Injector](https://github.com/Lor-Saba/Code-Injector))
