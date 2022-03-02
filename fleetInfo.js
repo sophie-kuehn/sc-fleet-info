@@ -33,6 +33,7 @@ $(function () {
         'TMBL': ['Tumbril'],
         'VANDUUL': ['Vanduul'],
         'XIAN': ['Xi\'an'],
+        'GAMA': ['Gatac Manufacture', 'Gatac']
     };
 
     // when matching these models, look for the stated alternative names
