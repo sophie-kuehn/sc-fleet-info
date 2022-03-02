@@ -637,8 +637,11 @@ $(function () {
 
         let buttonBox = $('<div class="skButtonBox"></div>');
         top.append(buttonBox);
+
         let fleetViewLink = $('<a href="" target="_blank" class="shadow-button trans-02s trans-color"><span class="label js-label trans-02s">show my fleet in 3D</span><span class="left-section"></span><span class="right-section"></span></a>');
-        buttonBox.append(fleetViewLink);
+
+        // 3d view broken atm
+        //buttonBox.append(fleetViewLink);
 
         $('<div>').load('https://raw.githubusercontent.com/sophie-kuehn/sc-fleet-info/master/VERSION', function (response, status) {
             if (response.trim() === VERSION) return;
