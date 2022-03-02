@@ -7,7 +7,7 @@ $(function () {
     // Edit this number to your preferences:
     const PLEDGE_LIST_PAGE_SIZE = 10;
 
-    const VERSION = '1.2.0';
+    const VERSION = '1.3.0';
 
     const INSURANCE_TYPE_LTI = 'lti';
     const INSURANCE_TYPE_IAE = 'iae';
@@ -34,6 +34,13 @@ $(function () {
         'VANDUUL': ['Vanduul'],
         'XIAN': ['Xi\'an'],
         'GAMA': ['Gatac Manufacture', 'Gatac']
+    };
+
+    const FLEETYARDS_SHIP_NAME_FIXES = {
+        'Hercules Starlifter A2': 'A2 Hercules',
+        'Hercules Starlifter C2': 'C2 Hercules',
+        'Hercules Starlifter M2': 'M2 Hercules',
+        'F7CM Super Hornet': 'F7C-M Super Hornet'
     };
 
     // when matching these models, look for the stated alternative names
@@ -225,6 +232,7 @@ $(function () {
         ship.model = model;
         ship.shortModel = model.split(' ')[0];
         ship.altModelNames = ALTERNATIVE_SHIP_MODEL_NAMES[ship.model] || [];
+        ship.fleetYardsModelName = FLEETYARDS_SHIP_NAME_FIXES[ship.model] || ship.model;
 
         return ship;
     };
@@ -467,12 +475,16 @@ $(function () {
         let icons = HTML_TPL.modelBoxIcons.clone();
         modelBox.append(icons);
 
-        let fyLink = $('<li></li>')
-        fyLink.append(prepareLink(
-            $('<img title="FleetYards" width="15"  src="https://fleetyards.net/packs/media/images/favicon-small-76fc2169b09909bd82901f49ca7ab702.png" />'),
-            'https://fleetyards.net/ships/' + ship.model.replace(/ /g, "-").toLowerCase() + '/'
-        ));
-        icons.append(fyLink);
+        if (ship.fleetYardsModelName !== undefined
+            && ship.fleetYardsModelName.length > 0
+        ) {
+            let fyLink = $('<li></li>');
+            fyLink.append(prepareLink(
+                $('<img title="FleetYards" width="15"  src="https://fleetyards.net/packs/media/images/favicon-small-76fc2169b09909bd82901f49ca7ab702.png" />'),
+                'https://fleetyards.net/ships/' + ship.fleetYardsModelName.replace(/ /g, "-").toLowerCase() + '/'
+            ));
+            icons.append(fyLink);
+        }
 
         // manufacturer
         let manuBox = HTML_TPL.manufacturerBox.clone();
