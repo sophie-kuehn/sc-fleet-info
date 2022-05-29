@@ -40,7 +40,10 @@ $(function () {
         'Hercules Starlifter A2': 'A2 Hercules',
         'Hercules Starlifter C2': 'C2 Hercules',
         'Hercules Starlifter M2': 'M2 Hercules',
-        'F7CM Super Hornet': 'F7C-M Super Hornet'
+        'F7CM Super Hornet': 'F7C-M Super Hornet',
+        'GRIN ROC DS': 'ROC DS',
+        'Genesis Starliner': 'GENESIS',
+        'MPUV C': 'MPUV CARGO'
     };
 
     // when matching these models, look for the stated alternative names
