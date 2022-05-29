@@ -7,7 +7,7 @@ $(function () {
     // Edit this number to your preferences:
     const PLEDGE_LIST_PAGE_SIZE = 10;
 
-    const VERSION = '1.3.0';
+    const VERSION = '1.3.1';
 
     const INSURANCE_TYPE_LTI = 'lti';
     const INSURANCE_TYPE_IAE = 'iae';
