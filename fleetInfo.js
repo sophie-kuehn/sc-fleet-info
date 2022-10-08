@@ -20,7 +20,7 @@ $(function () {
         'ARGO': ['ARGO Astronautics', 'ARGO'],
         'BANU': ['Banu'],
         'CNOU': ['Consolidated Outland', 'Consolidated', 'C.O.'],
-        'CRSD': ['Crusader Industries', 'Crusader'],
+        'CRUS': ['Crusader Industries', 'Crusader'],
         'DRAK': ['Drake Interplanetary', 'Drake'],
         'ESPERIA': ['Esperia'],
         'ESPR': ['Esperia'],
@@ -385,7 +385,7 @@ $(function () {
                 if ($item.find('.kind:contains(Ship)').length !== 0) {
                     ships.push(prepareShipInfo(
                         pledgeNumber,
-                        $('.custom-name', $item).text(),
+                        $('.custom-name-text', $item).text(),
                         $('.title', $item).text(),
                         $('.liner span', $item).text(),
                         insuranceType,
