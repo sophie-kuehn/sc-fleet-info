@@ -7,7 +7,7 @@ $(function () {
     // Edit this number to your preferences:
     const PLEDGE_LIST_PAGE_SIZE = 10;
 
-    const VERSION = '1.3.3';
+    const VERSION = '1.3.4';
 
     const INSURANCE_TYPE_LTI = 'lti';
     const INSURANCE_TYPE_IAE = 'iae';
@@ -52,13 +52,20 @@ $(function () {
         'GRIN ROC DS': ['ROC'],
         '100i': ['100 series'],
         '125a': ['100 series'],
-        '135c': ['100 series']
+        '135c': ['100 series'],
+        'A1 Spirit': ['Spirit'],
+        'C1 Spirit': ['Spirit'],
+        'E1 Spirit': ['Spirit']
     };
 
     // when matching these models, don't use the soft short name matching
     const STRICT_SHIP_MATCHING = {
         'Sabre Raven': true,
-        'Hull D': true
+        'Hull A': true,
+        'Hull B': true,
+        'Hull C': true,
+        'Hull D': true,
+        'Hull E': true
     };
     
     // if these are found in the skin name, expect the model name (needed eg for sub-type-only skins)
@@ -706,3 +713,4 @@ $(function () {
 
     $('head').append('<style type="text/css">' + STYLESHEETS + '</style>');
 });
+
