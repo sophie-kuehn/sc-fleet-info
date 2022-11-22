@@ -7,7 +7,7 @@ $(function () {
     // Edit this number to your preferences:
     const PLEDGE_LIST_PAGE_SIZE = 10;
 
-    const VERSION = '1.3.4';
+    const VERSION = '1.3.5';
 
     const INSURANCE_TYPE_LTI = 'lti';
     const INSURANCE_TYPE_IAE = 'iae';
@@ -55,7 +55,9 @@ $(function () {
         '135c': ['100 series'],
         'A1 Spirit': ['Spirit'],
         'C1 Spirit': ['Spirit'],
-        'E1 Spirit': ['Spirit']
+        'E1 Spirit': ['Spirit'],
+        'C8R Pisces': ['C8 Pisces'],
+        'C8X Pisces': ['C8 Pisces']
     };
 
     // when matching these models, don't use the soft short name matching
@@ -348,6 +350,7 @@ $(function () {
                 ) {
                     let upgradeTitle = $('.title', $item).text();
                     upgradeTitle = upgradeTitle.replace("Standard Edition", "");
+                    upgradeTitle = upgradeTitle.replace("Warbond Edition", "");
                     upgradeTitle = upgradeTitle.trim();
                     let parts = upgradeTitle.split('-')[1].split(' to ')
 
@@ -581,6 +584,7 @@ $(function () {
                 let skinName = skin.title;
                 skinName = skinName.replace(ship.model, "");
                 skinName = skinName.replace(ship.shortModel, "");
+                skinName = skinName.replace("Series", "");
                 $.each(ship.altModelNames, function(ani, altName) {
                     skinName = skinName.replace(new RegExp(altName, "i"), "");
                 });
