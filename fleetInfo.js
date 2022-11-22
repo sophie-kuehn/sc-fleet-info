@@ -7,7 +7,7 @@ $(function () {
     // Edit this number to your preferences:
     const PLEDGE_LIST_PAGE_SIZE = 10;
 
-    const VERSION = '1.3.4';
+    const VERSION = '1.3.5';
 
     const INSURANCE_TYPE_LTI = 'lti';
     const INSURANCE_TYPE_IAE = 'iae';
@@ -55,7 +55,9 @@ $(function () {
         '135c': ['100 series'],
         'A1 Spirit': ['Spirit'],
         'C1 Spirit': ['Spirit'],
-        'E1 Spirit': ['Spirit']
+        'E1 Spirit': ['Spirit'],
+        'C8R Pisces': ['C8 Pisces'],
+        'C8X Pisces': ['C8 Pisces']
     };
 
     // when matching these models, don't use the soft short name matching
