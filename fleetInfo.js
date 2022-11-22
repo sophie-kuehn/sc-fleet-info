@@ -350,6 +350,7 @@ $(function () {
                 ) {
                     let upgradeTitle = $('.title', $item).text();
                     upgradeTitle = upgradeTitle.replace("Standard Edition", "");
+                    upgradeTitle = upgradeTitle.replace("Warbond Edition", "");
                     upgradeTitle = upgradeTitle.trim();
                     let parts = upgradeTitle.split('-')[1].split(' to ')
 
@@ -583,6 +584,7 @@ $(function () {
                 let skinName = skin.title;
                 skinName = skinName.replace(ship.model, "");
                 skinName = skinName.replace(ship.shortModel, "");
+                skinName = skinName.replace("Series", "");
                 $.each(ship.altModelNames, function(ani, altName) {
                     skinName = skinName.replace(new RegExp(altName, "i"), "");
                 });
