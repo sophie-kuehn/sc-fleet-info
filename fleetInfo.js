@@ -7,7 +7,7 @@ $(function () {
     // Edit this number to your preferences:
     const PLEDGE_LIST_PAGE_SIZE = 10;
 
-    const VERSION = '1.3.5';
+    const VERSION = '1.4.0';
 
     const INSURANCE_TYPE_LTI = 'lti';
     const INSURANCE_TYPE_IAE = 'iae';
@@ -183,16 +183,20 @@ $(function () {
         }
         
         .skManufacturerBox {
-            border-top: none;
+            border: none;
+            padding: 0;
+            font-size: 0.8em;
+        }
+        
+        .skManufacturerBox.withBorder {
             border-bottom: 3px solid rgb(29, 45, 66);
             padding: 0 0 6px 0;
-            font-size: 0.8em;
         }
     `;
 
     const HTML_TPL = {};
     HTML_TPL.link = $('<a target="_blank"></a>');
-    HTML_TPL.shipList = $('<div class="skFleetList"></div>');
+    HTML_TPL.shipList = $('<div class="skFleetList">Loading ...</div>');
     HTML_TPL.shipBox = $('<div class="skShipBox"></div>');
     HTML_TPL.shipBoxInner = $('<div class="skInnerShipBox"></div>');
     HTML_TPL.imageBox = $('<div class="skImageBox"></div>');
@@ -207,6 +211,7 @@ $(function () {
     HTML_TPL.manufacturerBox =  $('<li class="skInfoLine skManufacturerBox"></li>');
 
     let ships = [];
+    let fpsEquipment = {};
     let skins = {};
     let upgrades = {};
 
@@ -314,7 +319,7 @@ $(function () {
                 }
             });
 
-            // browse the Ship items
+            // browse the items
             $('.items .item', $pledge).each((indexItem, elItem) => {
                 const $item = $(elItem);
 
@@ -369,6 +374,22 @@ $(function () {
                     }
 
                     return;
+                }
+
+                // FPS equipment
+                if ($item.find('.kind:contains(FPS Equipment)').length !== 0) {
+                    let fpseTitle = $('.title', $item).text();
+
+                    if (fpsEquipment[fpseTitle] === undefined) {
+                        fpsEquipment[fpseTitle] = {
+                            title: fpseTitle,
+                            pledgeNumber: pledgeNumber,
+                            image: itemImage,
+                            count: 1
+                        };
+                    } else {
+                        fpsEquipment[fpseTitle].count++;
+                    }
                 }
 
                 // special cases
@@ -506,6 +527,10 @@ $(function () {
         ) manuBox.text(ship.manufacturerNames[0]);
         infoBox.append(manuBox)
 
+        if (infos.length > 0) {
+            manuBox.addClass('withBorder');
+        }
+
         // additional lines of info
         $.each(infos, function(iterator, info) {
             let infoLine = HTML_TPL.infoLine.clone();
@@ -538,17 +563,10 @@ $(function () {
         return shipBox;
     };
 
-    const renderFleet = function(fleetList, fleetViewLink)
+    const renderFleet = function(fleetList)
     {
-        console.log(skins);
-        console.log(upgrades);
-        console.log(ships);
-
         fleetList.empty();
-        let fleetViewLinkHref = "http://www.starship42.com/fleetview/?type=matrix";
-
         $.each(ships, function(index, ship) {
-            fleetViewLinkHref = fleetViewLinkHref + "&s[]=" + ship.model;
             let infos = [];
 
             if (ship.gamePackage) {
@@ -633,8 +651,52 @@ $(function () {
             }, missingUpgradeShip.upgrades));
         });
 
-        fleetViewLink.attr("href", fleetViewLinkHref);
+        let missingSkins = [];
+
+        $.each(skins, function(iterator, skin) {
+            if (skin.attached) return;
+
+            let text = skin.title;
+            if (skin.count > 1) text = text + " (" + skin.count + ")";
+            let info = {
+                text: text,
+                image: skin.image,
+                link: getPledgeLink(skin.pledgeNumber)
+            };
+               
+            missingSkins.push(info);
+        });
+
+        if (missingSkins.length > 0) {
+            fleetList.append(renderShip({model: "Unassigned Ship Skins"}, missingSkins));
+        }
     };
+
+    const renderEquipment = function(fleetList)
+    {
+        fleetList.empty();
+
+        $.each(fpsEquipment, function(iterator, fpsEquipmentItem) {
+            let text = fpsEquipmentItem.title;
+            if (fpsEquipmentItem.count > 1) text = text + " (" + fpsEquipmentItem.count + ")";
+            fleetList.append(renderShip({
+                model: text,
+                image: fpsEquipmentItem.image,
+                pledgeNumber: fpsEquipmentItem.pledgeNumber
+            }, []));
+        });
+    };
+
+    let debugInfoLogged = false;
+    const logDebugInfo = function()
+    {
+        if (debugInfoLogged) return;
+        console.log(skins);
+        console.log(upgrades);
+        console.log(ships);
+        console.log(fpsEquipment);
+        debugInfoLogged = true;
+    }
 
     let dataLoaded = false;
     const loadData = function(page, callback)
@@ -653,21 +715,14 @@ $(function () {
         });
     };
 
-    const renderFleetPage = function()
+    const preparePage = function()
     {
         let innerContent = $('.inner-content');
         
-        $('div.sidenav ul li').removeClass('active');
-        $('.showFleetsButton').addClass('active');
         let top = $('<div class="top"></div>');
 
         let buttonBox = $('<div class="skButtonBox"></div>');
         top.append(buttonBox);
-
-        let fleetViewLink = $('<a href="" target="_blank" class="shadow-button trans-02s trans-color"><span class="label js-label trans-02s">show my fleet in 3D</span><span class="left-section"></span><span class="right-section"></span></a>');
-
-        // 3d view broken atm
-        //buttonBox.append(fleetViewLink);
 
         $('<div>').load('https://raw.githubusercontent.com/sophie-kuehn/sc-fleet-info/master/VERSION', function (response, status) {
             if (response.trim() === VERSION) return;
@@ -677,7 +732,7 @@ $(function () {
 
         innerContent.empty();
         innerContent.css('box-sizing', 'inherit').append(top);
-        let title = $('<h2 class="title">MY FLEET</h2>');
+        let title = $('<h2 class="title">MY EQUIPMENT</h2>');
         top.append(title);
 
         let sep = $('<div style="clear:both" class="separator"></div>');
@@ -686,8 +741,28 @@ $(function () {
         let fleetList = HTML_TPL.shipList.clone();
         innerContent.append(fleetList);
 
+        return fleetList;
+    };
+
+    const renderEquipmentPage = function()
+    {
+        $('div.sidenav ul li').removeClass('active');
+        $('.showEquipmentButton').addClass('active');
+        let fleetList = preparePage();
         loadData(1, function(){
-            renderFleet(fleetList, fleetViewLink);
+            logDebugInfo();
+            renderEquipment(fleetList);
+        });
+    };
+
+    const renderFleetPage = function()
+    {
+        $('div.sidenav ul li').removeClass('active');
+        $('.showFleetsButton').addClass('active');
+        let fleetList = preparePage();
+        loadData(1, function(){
+            logDebugInfo();
+            renderFleet(fleetList);
         });
     };
 
@@ -695,11 +770,19 @@ $(function () {
     if (nav.length > 0) {
         let newNav = $(nav[0]).clone();
         newNav.removeClass('active');
-        newNav.addClass('showFleetsButton');
-        newNav.find('.bg').text('MY FLEET');
+        newNav.addClass('showEquipmentButton');
+        newNav.find('.bg').text('MY EQUIPMENT');
         newNav.find('a').attr('href', 'javascript:void(0)');
-        newNav.find('a').click(renderFleetPage);
+        newNav.find('a').click(renderEquipmentPage);
         $('div.sidenav ul').prepend(newNav);
+
+        let newNavB = $(nav[0]).clone();
+        newNavB.removeClass('active');
+        newNavB.addClass('showFleetsButton');
+        newNavB.find('.bg').text('MY FLEET');
+        newNavB.find('a').attr('href', 'javascript:void(0)');
+        newNavB.find('a').click(renderFleetPage);
+        $('div.sidenav ul').prepend(newNavB);
     }
 
     // CIG seams to store the pagesize in session.
