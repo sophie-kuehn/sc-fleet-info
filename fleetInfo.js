@@ -9,7 +9,7 @@ $(function () {
     // Edit this number to your preferences:
     const PLEDGE_LIST_PAGE_SIZE = 10;
 
-    const VERSION = '1.4.2';
+    const VERSION = '1.5.0';
 
     const INSURANCE_TYPE_LTI = 'lti';
     const INSURANCE_TYPE_IAE = 'iae';
@@ -314,6 +314,7 @@ $(function () {
 
                 if (/Star\sCitizen\sDigital\sDownload/i.test(bonus)
                      || /Insurance/i.test(bonus)
+                     || /Name Reservation/i.test(bonus)
                 ) return;
 
                 if (/Origin\s+G12[ar]/i.test(bonus)) {
@@ -460,7 +461,8 @@ $(function () {
                         title: equipmentTitle,
                         pledgeNumber: pledgeNumber,
                         image: itemImage,
-                        count: 1
+                        count: 1,
+                        type: $item.find('.kind').text()
                     };
                 } else {
                     equipment[equipmentTitle].count++;
@@ -729,7 +731,8 @@ $(function () {
             fleetList.append(renderShip({
                 model: text,
                 image: equipmentItem.image,
-                pledgeNumber: equipmentItem.pledgeNumber
+                pledgeNumber: equipmentItem.pledgeNumber,
+                manufacturerNames: [equipmentItem.type]
             }, []));
         });
     };
