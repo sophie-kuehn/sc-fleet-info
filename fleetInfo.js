@@ -1,13 +1,15 @@
 $(function () {
     'use strict';
 
+// CONFIGURATION AND PRESETS #####################################################################
+
     // CIG seams to store the pagesize in session.
     // Since we overwrite it with 1 in pledge deeplinks,
     // we have to fix it in all other links to the pledges list.
     // Edit this number to your preferences:
     const PLEDGE_LIST_PAGE_SIZE = 10;
 
-    const VERSION = '1.4.0';
+    const VERSION = '1.4.1';
 
     const INSURANCE_TYPE_LTI = 'lti';
     const INSURANCE_TYPE_IAE = 'iae';
@@ -69,13 +71,20 @@ $(function () {
         'Hull D': true,
         'Hull E': true
     };
-    
+
     // if these are found in the skin name, expect the model name (needed eg for sub-type-only skins)
     const STRICT_SHIP_MATCHING_REVERSE = {
         'Cutlass Black': 'Cutlass Black',
         'Ares Radiance': 'Radiance',
         'Ares Ember': 'Ember'
     };
+
+    let ships = [];
+    let fpsEquipment = {};
+    let skins = {};
+    let upgrades = {};
+
+// STYLESHEETS AND HTTP TEMPLATES ################################################################
 
     const STYLESHEETS = `
         .skButtonBox {
@@ -210,10 +219,7 @@ $(function () {
     HTML_TPL.modelBoxIcons = $('<ul class="skModelBoxIcons"></ul>');
     HTML_TPL.manufacturerBox =  $('<li class="skInfoLine skManufacturerBox"></li>');
 
-    let ships = [];
-    let fpsEquipment = {};
-    let skins = {};
-    let upgrades = {};
+// PLEDGE PROCESSING #############################################################################
 
     const prepareShipInfo = function(
         pledgeNumber,
@@ -429,6 +435,8 @@ $(function () {
         })
     };
 
+// RENDERING #####################################################################################
+
     const stringMatchesShip = function(haystack, ship, strict = false)
     {
         if (haystack.search(new RegExp(ship.model, "i")) !== -1) return true;
@@ -566,6 +574,9 @@ $(function () {
     const renderFleet = function(fleetList)
     {
         fleetList.empty();
+
+        ships.sort((a,b) => (a.model > b.model) ? 1 : ((b.model > a.model) ? -1 : 0));
+
         $.each(ships, function(index, ship) {
             let infos = [];
 
@@ -663,7 +674,7 @@ $(function () {
                 image: skin.image,
                 link: getPledgeLink(skin.pledgeNumber)
             };
-               
+
             missingSkins.push(info);
         });
 
@@ -676,7 +687,9 @@ $(function () {
     {
         fleetList.empty();
 
-        $.each(fpsEquipment, function(iterator, fpsEquipmentItem) {
+        let sortedFpsEquipment = Object.keys(fpsEquipment).sort().reduce((a, c) => (a[c] = fpsEquipment[c], a), {});
+
+        $.each(sortedFpsEquipment, function(iterator, fpsEquipmentItem) {
             let text = fpsEquipmentItem.title;
             if (fpsEquipmentItem.count > 1) text = text + " (" + fpsEquipmentItem.count + ")";
             fleetList.append(renderShip({
@@ -687,38 +700,10 @@ $(function () {
         });
     };
 
-    let debugInfoLogged = false;
-    const logDebugInfo = function()
-    {
-        if (debugInfoLogged) return;
-        console.log(skins);
-        console.log(upgrades);
-        console.log(ships);
-        console.log(fpsEquipment);
-        debugInfoLogged = true;
-    }
-
-    let dataLoaded = false;
-    const loadData = function(page, callback)
-    {
-        if (dataLoaded) return callback();
-
-        const url = '/account/pledges?pagesize=50&page=' + page;
-        const $page = $('<div>');
-        $page.load(url + ' .page-wrapper', function (response, status) {
-            if ($('.list-items .empy-list', this).length > 0) {
-                dataLoaded = true;
-                return callback();
-            }
-            processPledges(this);
-            loadData(page+1, callback);
-        });
-    };
-
     const preparePage = function()
     {
         let innerContent = $('.inner-content');
-        
+
         let top = $('<div class="top"></div>');
 
         let buttonBox = $('<div class="skButtonBox"></div>');
@@ -744,6 +729,25 @@ $(function () {
         return fleetList;
     };
 
+// LOAD DATA AND TRIGGER RENDER ##################################################################
+
+    let dataLoaded = false;
+    const loadData = function(page, callback)
+    {
+        if (dataLoaded) return callback();
+
+        const url = '/account/pledges?pagesize=50&page=' + page;
+        const $page = $('<div>');
+        $page.load(url + ' .page-wrapper', function (response, status) {
+            if ($('.list-items .empy-list', this).length > 0) {
+                dataLoaded = true;
+                return callback();
+            }
+            processPledges(this);
+            loadData(page+1, callback);
+        });
+    };
+
     const renderEquipmentPage = function()
     {
         $('div.sidenav ul li').removeClass('active');
@@ -765,6 +769,19 @@ $(function () {
             renderFleet(fleetList);
         });
     };
+
+    let debugInfoLogged = false;
+    const logDebugInfo = function()
+    {
+        if (debugInfoLogged) return;
+        console.log(skins);
+        console.log(upgrades);
+        console.log(ships);
+        console.log(fpsEquipment);
+        debugInfoLogged = true;
+    }
+
+// INJECT NAVIGATION AND STYLESHEET ##############################################################
 
     let nav = $('div.sidenav ul li');
     if (nav.length > 0) {
