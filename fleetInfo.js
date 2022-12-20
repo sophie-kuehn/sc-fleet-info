@@ -75,13 +75,13 @@ $(function () {
 
     // if these are found in the skin name, expect the model name (needed eg for sub-type-only skins)
     const STRICT_SHIP_MATCHING_REVERSE = {
-        'Cutlass Black': 'Cutlass Black',
-        'Ares Radiance': 'Radiance',
-        'Ares Ember': 'Ember'
+        'Cutlass Black': 'Cutlass Black'
+        //'Ares Radiance': 'Radiance',
+        //'Ares Ember': 'Ember'
     };
 
     let ships = [];
-    let fpsEquipment = {};
+    let equipment = {};
     let skins = {};
     let upgrades = {};
 
@@ -268,6 +268,7 @@ $(function () {
             pledgeNumber++;
             const $pledge = $(el);
 
+            let pledgeImage = $('div.image', $pledge).css('background-image');
             let gamePackage = false;
             let insurances = {};
 
@@ -307,9 +308,13 @@ $(function () {
                 insuranceDuration = insurances.monthly;
             }
 
-            // browse the ships that are in "Also contains" part
+            // browse the items without image
             $pledge.find('.without-images .item .title').each((i, elBonus) => {
                 const bonus = $(elBonus).text().trim();
+
+                if (/Star\sCitizen\sDigital\sDownload/i.test(bonus)
+                     || /Insurance/i.test(bonus)
+                ) return;
 
                 if (/Origin\s+G12[ar]/i.test(bonus)) {
                     const shipInfoRegexResult = /(Origin)\s+(G12[ar])/i.exec(bonus);
@@ -321,13 +326,44 @@ $(function () {
                         insuranceType,
                         insuranceDuration,
                         gamePackage,
-                        $('div.image', $pledge).css('background-image')
+                        pledgeImage
                     ));
+                    return;
+                }
+
+                if (/(Skin|Paint)/i.test(bonus)) {
+                    let skinTitle = bonus;
+
+                    if (skins[skinTitle] === undefined) {
+                        skins[skinTitle] = {
+                            title: skinTitle,
+                            pledgeNumber: pledgeNumber,
+                            count: 1,
+                            image: pledgeImage,
+                            attached: false
+                        };
+                    } else {
+                        skins[skinTitle].count++;
+                    }
+                    return;
+                }
+
+                let equipmentTitle = bonus;
+
+                if (equipment[equipmentTitle] === undefined) {
+                    equipment[equipmentTitle] = {
+                        title: equipmentTitle,
+                        pledgeNumber: pledgeNumber,
+                        image: pledgeImage,
+                        count: 1
+                    };
+                } else {
+                    equipment[equipmentTitle].count++;
                 }
             });
 
-            // browse the items
-            $('.items .item', $pledge).each((indexItem, elItem) => {
+            // browse the items with image
+            $('.with-images .item', $pledge).each((indexItem, elItem) => {
                 const $item = $(elItem);
 
                 let itemImage = $('div.image', $pledge).css('background-image');
@@ -383,39 +419,22 @@ $(function () {
                     return;
                 }
 
-                // FPS equipment
-                if ($item.find('.kind:contains(FPS Equipment)').length !== 0) {
-                    let fpseTitle = $('.title', $item).text();
-
-                    if (fpsEquipment[fpseTitle] === undefined) {
-                        fpsEquipment[fpseTitle] = {
-                            title: fpseTitle,
-                            pledgeNumber: pledgeNumber,
-                            image: itemImage,
-                            count: 1
-                        };
-                    } else {
-                        fpsEquipment[fpseTitle].count++;
-                    }
-                }
-
-                // special cases
-                if ($item.find('.kind:contains(Hangar decoration)').length !== 0) {
-                    if ($('.liner', $item).text().indexOf('Greycat Industrial') !== -1
-                        && $('.title', $item).text().indexOf('Greycat PTV') !== -1) {
-
-                        // Found the ship "Greycat PTV" from "Greycat Industrial"
-                        ships.push(prepareShipInfo(
-                            pledgeNumber,
-                            '',
-                            $('.title', $item).text(),
-                            $('.liner span', $item).text(),
-                            insuranceType,
-                            insuranceDuration,
-                            gamePackage,
-                            itemImage
-                        ));
-                    }
+                // ptv as decoration special case
+                if ($item.find('.kind:contains(Hangar decoration)').length !== 0
+                    && $('.liner', $item).text().indexOf('Greycat Industrial') !== -1
+                    && $('.title', $item).text().indexOf('Greycat PTV') !== -1
+                ) {
+                    // Found the ship "Greycat PTV" from "Greycat Industrial"
+                    ships.push(prepareShipInfo(
+                        pledgeNumber,
+                        '',
+                        $('.title', $item).text(),
+                        $('.liner span', $item).text(),
+                        insuranceType,
+                        insuranceDuration,
+                        gamePackage,
+                        itemImage
+                    ));
                     return;
                 }
 
@@ -431,6 +450,20 @@ $(function () {
                         gamePackage,
                         itemImage
                     ));
+                    return;
+                }
+            
+                let equipmentTitle = $('.title', $item).text();
+
+                if (equipment[equipmentTitle] === undefined) {
+                    equipment[equipmentTitle] = {
+                        title: equipmentTitle,
+                        pledgeNumber: pledgeNumber,
+                        image: itemImage,
+                        count: 1
+                    };
+                } else {
+                    equipment[equipmentTitle].count++;
                 }
             });
         })
@@ -688,15 +721,15 @@ $(function () {
     {
         fleetList.empty();
 
-        let sortedFpsEquipment = Object.keys(fpsEquipment).sort().reduce((a, c) => (a[c] = fpsEquipment[c], a), {});
+        let sortedEquipment = Object.keys(equipment).sort().reduce((a, c) => (a[c] = equipment[c], a), {});
 
-        $.each(sortedFpsEquipment, function(iterator, fpsEquipmentItem) {
-            let text = fpsEquipmentItem.title;
-            if (fpsEquipmentItem.count > 1) text = text + " (" + fpsEquipmentItem.count + ")";
+        $.each(sortedEquipment, function(iterator, equipmentItem) {
+            let text = equipmentItem.title;
+            if (equipmentItem.count > 1) text = text + " (" + equipmentItem.count + ")";
             fleetList.append(renderShip({
                 model: text,
-                image: fpsEquipmentItem.image,
-                pledgeNumber: fpsEquipmentItem.pledgeNumber
+                image: equipmentItem.image,
+                pledgeNumber: equipmentItem.pledgeNumber
             }, []));
         });
     };
@@ -778,7 +811,7 @@ $(function () {
         console.log(skins);
         console.log(upgrades);
         console.log(ships);
-        console.log(fpsEquipment);
+        console.log(equipment);
         debugInfoLogged = true;
     }
 
