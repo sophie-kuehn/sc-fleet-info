@@ -9,7 +9,7 @@ $(function () {
     // Edit this number to your preferences:
     const PLEDGE_LIST_PAGE_SIZE = 10;
 
-    const VERSION = '1.5.0';
+    const VERSION = '1.5.1';
 
     const INSURANCE_TYPE_LTI = 'lti';
     const INSURANCE_TYPE_IAE = 'iae';
@@ -356,7 +356,8 @@ $(function () {
                         title: equipmentTitle,
                         pledgeNumber: pledgeNumber,
                         image: pledgeImage,
-                        count: 1
+                        count: 1,
+                        type: "Miscellaneous"
                     };
                 } else {
                     equipment[equipmentTitle].count++;
@@ -455,14 +456,16 @@ $(function () {
                 }
             
                 let equipmentTitle = $('.title', $item).text();
-
+                let equipmentType = $item.find('.kind').text();
+                if (equipmentType.length === 0) equipmentType = "Miscellaneous";
+                    
                 if (equipment[equipmentTitle] === undefined) {
                     equipment[equipmentTitle] = {
                         title: equipmentTitle,
                         pledgeNumber: pledgeNumber,
                         image: itemImage,
                         count: 1,
-                        type: $item.find('.kind').text()
+                        type: equipmentType
                     };
                 } else {
                     equipment[equipmentTitle].count++;
@@ -737,7 +740,7 @@ $(function () {
         });
     };
 
-    const preparePage = function()
+    const preparePage = function(pageTitle)
     {
         let innerContent = $('.inner-content');
 
@@ -754,7 +757,7 @@ $(function () {
 
         innerContent.empty();
         innerContent.css('box-sizing', 'inherit').append(top);
-        let title = $('<h2 class="title">MY EQUIPMENT</h2>');
+        let title = $('<h2 class="title">' + pageTitle + '</h2>');
         top.append(title);
 
         let sep = $('<div style="clear:both" class="separator"></div>');
@@ -789,7 +792,7 @@ $(function () {
     {
         $('div.sidenav ul li').removeClass('active');
         $('.showEquipmentButton').addClass('active');
-        let fleetList = preparePage();
+        let fleetList = preparePage("MY EQUIPMENT");
         loadData(1, function(){
             logDebugInfo();
             renderEquipment(fleetList);
@@ -800,7 +803,7 @@ $(function () {
     {
         $('div.sidenav ul li').removeClass('active');
         $('.showFleetsButton').addClass('active');
-        let fleetList = preparePage();
+        let fleetList = preparePage("MY FLEET");
         loadData(1, function(){
             logDebugInfo();
             renderFleet(fleetList);
