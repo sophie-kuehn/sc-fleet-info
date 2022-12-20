@@ -9,7 +9,7 @@ $(function () {
     // Edit this number to your preferences:
     const PLEDGE_LIST_PAGE_SIZE = 10;
 
-    const VERSION = '1.4.1';
+    const VERSION = '1.4.2';
 
     const INSURANCE_TYPE_LTI = 'lti';
     const INSURANCE_TYPE_IAE = 'iae';
@@ -59,7 +59,8 @@ $(function () {
         'C1 Spirit': ['Spirit'],
         'E1 Spirit': ['Spirit'],
         'C8R Pisces': ['C8 Pisces'],
-        'C8X Pisces': ['C8 Pisces']
+        'C8X Pisces': ['C8 Pisces'],
+        'C8X Pisces Expedition': ['C8 Pisces']
     };
 
     // when matching these models, don't use the soft short name matching
@@ -613,13 +614,13 @@ $(function () {
                 let skinName = skin.title;
                 skinName = skinName.replace(ship.model, "");
                 skinName = skinName.replace(ship.shortModel, "");
-                skinName = skinName.replace("Series", "");
                 $.each(ship.altModelNames, function(ani, altName) {
                     skinName = skinName.replace(new RegExp(altName, "i"), "");
                 });
                 $.each(ship.manufacturerNames, function(mi, manufacturerName) {
                     skinName = skinName.replace(new RegExp(manufacturerName, "i"), "");
                 });
+                skinName = skinName.replace("Series", "");
                 skinName = skinName.replace("-", "");
                 skinName = skinName.trim();
                 if (skin.count > 1) skinName = skinName + " (" + skin.count + ")";
