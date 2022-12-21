@@ -8,9 +8,6 @@ if (typeof SFI_ASYNC === 'undefined') {
     var SFI_PLEDGE_LIST_PAGE_SIZE = 10;
 
 // END OF CONFIGURATION ##########################################################################
-} else {
-    console.log(SFI_ASYNC);
-    console.log(SFI_PLEDGE_LIST_PAGE_SIZE);
 }
 
 $(function () {
@@ -753,11 +750,13 @@ $(function () {
         let buttonBox = $('<div class="skButtonBox"></div>');
         top.append(buttonBox);
 
-        $('<div>').load('https://sophie-kuehn.github.io/sc-fleet-info/VERSION', function (response, status) {
-            if (response.trim() === VERSION) return;
-            let updateLink = $('<a href="https://github.com/sophie-kuehn/sc-fleet-info" target="_blank" class="shadow-button trans-02s trans-color"><span class="label js-label trans-02s">Updates available!</span><span class="left-section"></span><span class="right-section"></span></a>');
-            buttonBox.append(updateLink);
-        });
+        if (typeof SFI_ASYNC === 'undefined') {
+            $('<div>').load('https://sophie-kuehn.github.io/sc-fleet-info/VERSION', function (response, status) {
+                if (response.trim() === VERSION) return;
+                let updateLink = $('<a href="https://github.com/sophie-kuehn/sc-fleet-info" target="_blank" class="shadow-button trans-02s trans-color"><span class="label js-label trans-02s">Updates available!</span><span class="left-section"></span><span class="right-section"></span></a>');
+                buttonBox.append(updateLink);
+            });
+        }
 
         innerContent.empty();
         innerContent.css('box-sizing', 'inherit').append(top);
