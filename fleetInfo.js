@@ -852,5 +852,9 @@ $(function () {
     });
 
     $('head').append('<style type="text/css">' + STYLESHEETS + '</style>');
-});
 
+    if (typeof SFI_ASYNC !== 'undefined') {
+        console.log(SFI_PLEDGE_LIST_PAGE_SIZE);
+        console.log(SFI_ASYNC);
+    }
+});
