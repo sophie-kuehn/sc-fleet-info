@@ -1,13 +1,17 @@
 $(function () {
     'use strict';
 
-// CONFIGURATION AND PRESETS #####################################################################
+    if (typeof SFI_ASYNC === 'undefined') {
+// CONFIGURATION #################################################################################
 
-    // CIG seams to store the pagesize in session.
-    // Since we overwrite it with 1 in pledge deeplinks,
-    // we have to fix it in all other links to the pledges list.
-    // Edit this number to your preferences:
-    const PLEDGE_LIST_PAGE_SIZE = 10;
+        // CIG seams to store the pagesize in session.
+        // Since we overwrite it with 1 in pledge deeplinks,
+        // we have to fix it in all other links to the pledges list.
+        // Edit this number to your preferences:
+        var SFI_PLEDGE_LIST_PAGE_SIZE = 10;
+
+// MAPPINGS ######################################################################################
+    }
 
     const VERSION = '1.5.2';
 
@@ -79,11 +83,6 @@ $(function () {
         //'Ares Radiance': 'Radiance',
         //'Ares Ember': 'Ember'
     };
-
-    let ships = [];
-    let equipment = {};
-    let skins = {};
-    let upgrades = {};
 
 // STYLESHEETS AND HTTP TEMPLATES ################################################################
 
@@ -221,6 +220,11 @@ $(function () {
     HTML_TPL.manufacturerBox =  $('<li class="skInfoLine skManufacturerBox"></li>');
 
 // PLEDGE PROCESSING #############################################################################
+
+    let ships = [];
+    let equipment = {};
+    let skins = {};
+    let upgrades = {};
 
     const addShip = function(
         pledgeNumber,
@@ -459,7 +463,7 @@ $(function () {
                     );
                     return;
                 }
-                    
+
                 addEquipment({
                     title: title,
                     pledgeNumber: pledgeNumber,
@@ -745,7 +749,7 @@ $(function () {
         let buttonBox = $('<div class="skButtonBox"></div>');
         top.append(buttonBox);
 
-        $('<div>').load('https://raw.githubusercontent.com/sophie-kuehn/sc-fleet-info/master/VERSION', function (response, status) {
+        $('<div>').load('https://sophie-kuehn.github.io/sc-fleet-info/VERSION', function (response, status) {
             if (response.trim() === VERSION) return;
             let updateLink = $('<a href="https://github.com/sophie-kuehn/sc-fleet-info" target="_blank" class="shadow-button trans-02s trans-color"><span class="label js-label trans-02s">Updates available!</span><span class="left-section"></span><span class="right-section"></span></a>');
             buttonBox.append(updateLink);
@@ -847,15 +851,9 @@ $(function () {
             href = href.replace(/(\&|)pagesize\=\d+(\&|)/, "");
             let delim = '?';
             if (href.search(/\?/) != -1) delim = '&';
-            $(element).attr('href', href + delim + 'pagesize=' + PLEDGE_LIST_PAGE_SIZE);
+            $(element).attr('href', href + delim + 'pagesize=' + SFI_PLEDGE_LIST_PAGE_SIZE);
         }
     });
 
-    $('head').append('<style type="text/css">' + STYLESHEETS + '</style>');
-
-    console.log(typeof SFI_ASYNC);
-    if (typeof SFI_ASYNC !== 'undefined') {
-        console.log(SFI_PLEDGE_LIST_PAGE_SIZE);
-        console.log(SFI_ASYNC);
-    }
+    $('head').append('<style>' + STYLESHEETS + '</style>');
 });
