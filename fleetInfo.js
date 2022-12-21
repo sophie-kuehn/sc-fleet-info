@@ -853,6 +853,7 @@ $(function () {
 
     $('head').append('<style type="text/css">' + STYLESHEETS + '</style>');
 
+    console.log(typeof SFI_ASYNC);
     if (typeof SFI_ASYNC !== 'undefined') {
         console.log(SFI_PLEDGE_LIST_PAGE_SIZE);
         console.log(SFI_ASYNC);
