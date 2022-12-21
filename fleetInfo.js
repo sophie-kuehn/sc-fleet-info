@@ -1,19 +1,21 @@
-$(function () {
-    'use strict';
-
-    if (typeof SFI_ASYNC === 'undefined') {
+if (typeof SFI_ASYNC === 'undefined') {
 // CONFIGURATION #################################################################################
 
-        // CIG seams to store the pagesize in session.
-        // Since we overwrite it with 1 in pledge deeplinks,
-        // we have to fix it in all other links to the pledges list.
-        // Edit this number to your preferences:
-        var SFI_PLEDGE_LIST_PAGE_SIZE = 10;
+    // CIG seams to store the pagesize in session.
+    // Since we overwrite it with 1 in pledge deeplinks,
+    // we have to fix it in all other links to the pledges list.
+    // Edit this number to your preferences:
+    var SFI_PLEDGE_LIST_PAGE_SIZE = 10;
 
+// END OF CONFIGURATION ##########################################################################
+} else {
+    console.log(SFI_ASYNC);
+    console.log(SFI_PLEDGE_LIST_PAGE_SIZE);
+}
+
+$(function () {
+    'use strict';
 // MAPPINGS ######################################################################################
-    } else {
-        console.log(SFI_PLEDGE_LIST_PAGE_SIZE);
-    }
 
     const VERSION = '1.5.2';
 
@@ -843,8 +845,6 @@ $(function () {
         newNavB.find('a').click(renderFleetPage);
         $('div.sidenav ul').prepend(newNavB);
     }
-
-    console.log(SFI_PLEDGE_LIST_PAGE_SIZE);
 
     // CIG seams to store the pagesize in session.
     // Since we overwrite it with 1 in pledge deeplinks,
