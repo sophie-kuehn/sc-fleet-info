@@ -11,6 +11,8 @@ $(function () {
         var SFI_PLEDGE_LIST_PAGE_SIZE = 10;
 
 // MAPPINGS ######################################################################################
+    } else {
+        console.log(SFI_PLEDGE_LIST_PAGE_SIZE);
     }
 
     const VERSION = '1.5.2';
@@ -841,6 +843,8 @@ $(function () {
         newNavB.find('a').click(renderFleetPage);
         $('div.sidenav ul').prepend(newNavB);
     }
+
+    console.log(SFI_PLEDGE_LIST_PAGE_SIZE);
 
     // CIG seams to store the pagesize in session.
     // Since we overwrite it with 1 in pledge deeplinks,
