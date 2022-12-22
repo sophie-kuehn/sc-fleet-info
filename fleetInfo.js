@@ -18,7 +18,7 @@ $(function () {
     'use strict';
 // MAPPINGS ######################################################################################
 
-    const VERSION = '1.7.1';
+    const VERSION = '1.7.2';
 
     const INSURANCE_TYPE_LTI = 'lti';
     const INSURANCE_TYPE_IAE = 'iae';
@@ -830,7 +830,7 @@ $(function () {
 
     const preparePage = function(pageTitle)
     {
-        let innerContent = $('.inner-content');
+        let innerContent = $('.page-wrapper .inner-content');
         innerContent.empty();
         innerContent.css('box-sizing', 'inherit');
 
