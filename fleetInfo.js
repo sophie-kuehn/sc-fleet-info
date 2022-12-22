@@ -18,7 +18,7 @@ $(function () {
     'use strict';
 // MAPPINGS ######################################################################################
 
-    const VERSION = '1.7.2';
+    const VERSION = '1.7.3';
 
     const INSURANCE_TYPE_LTI = 'lti';
     const INSURANCE_TYPE_IAE = 'iae';
@@ -846,11 +846,11 @@ $(function () {
         let fleetList = HTML_TPL.shipList.clone();
         innerContent.append(fleetList);
 
-        let updateLink = addPageButton('https://github.com/sophie-kuehn/sc-fleet-info', 'GitHub');
+        let updateLink = addPageButton('https://github.com/sophie-kuehn/sc-fleet-info', 'v' + VERSION);
         if (typeof SFI_ASYNC === 'undefined') {
             $('<div>').load('https://sophie-kuehn.github.io/sc-fleet-info/VERSION', function (response, status) {
                 if (response.trim() === VERSION) return;
-                updateLink.find('.label').text("Update available!");
+                updateLink.find('.label').text('v' + VERSION + ' - Update available!');
             });
         }
 
