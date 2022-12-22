@@ -18,7 +18,7 @@ $(function () {
     'use strict';
 // MAPPINGS ######################################################################################
 
-    const VERSION = '1.7.0';
+    const VERSION = '1.7.1';
 
     const INSURANCE_TYPE_LTI = 'lti';
     const INSURANCE_TYPE_IAE = 'iae';
@@ -871,23 +871,18 @@ $(function () {
 
     const sortDomArrayByContents = function(array, className)
     {
-        let compare = function(a,b)
-        {
+        array.sort(function(a,b){
             let aText = $(a).find(className).text();
             let bText = $(b).find(className).text();
             let aSortBack = $(a).hasClass('skSortBack');
             let bSortBack = $(b).hasClass('skSortBack');
-
-            if (aSortBack && !bSortBack) return -1;
+            if (aSortBack && !bSortBack) return 1;
             if (!aSortBack && bSortBack) return -1;
-
             if (aText > bText) return 1;
             if (aText < bText) return -1;
-
             return 0;
-        };
-
-        return array.sort(compare);
+        });
+        return array;
     };
 
     const groupAndSortBoxes = function(list, groupOn, sortBy)
@@ -913,8 +908,9 @@ $(function () {
                 header.text(group);
                 list.append(header);
             }            
-
+            
             boxes = sortDomArrayByContents(boxes, sortBy);
+
             $.each(boxes, function(i, box) {
                 list.append(box);
             });
