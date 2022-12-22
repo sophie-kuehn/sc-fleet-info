@@ -6,6 +6,12 @@
 // Edit this number to your preferences:
 var SFI_PLEDGE_LIST_PAGE_SIZE = 10;
 
+// none, manufacturer or insurance
+var SFI_DEFAULT_FLEET_GROUP = 'none';
+
+// none, type
+var SFI_DEFAULT_EQUIPMENT_GROUP = 'none';
+
 // LOAD SCRIPT ###################################################################################
 
 const SFI_ASYNC = true;
@@ -16,3 +22,4 @@ $(function () {
     widget.setAttribute('async', 'async');
     document.body.appendChild(widget);
 });
+
