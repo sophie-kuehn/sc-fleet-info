@@ -14,11 +14,19 @@ var SFI_DEFAULT_EQUIPMENT_GROUP = SFI_DEFAULT_EQUIPMENT_GROUP ?? 'none';
 
 // END OF CONFIGURATION ##########################################################################
 
+if (typeof SFI_DONE == undefined) {
+    var SFI_DONE = false;
+}
+
 $(function () {
     'use strict';
+
+    if (SFI_DONE == true) return;
+    SFI_DONE = true;
+
 // MAPPINGS ######################################################################################
 
-    const VERSION = '1.7.3';
+    const VERSION = '1.7.4';
 
     const INSURANCE_TYPE_LTI = 'lti';
     const INSURANCE_TYPE_IAE = 'iae';
@@ -1018,4 +1026,3 @@ $(function () {
 
     $('head').append('<style>' + STYLESHEETS + '</style>');
 });
-
