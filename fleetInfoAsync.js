@@ -14,9 +14,16 @@ var SFI_DEFAULT_EQUIPMENT_GROUP = 'none';
 
 // LOAD SCRIPT ###################################################################################
 
-const SFI_ASYNC = true;
+if (typeof SFI_ASYNC == undefined) {
+    var SFI_ASYNC = false;
+}
+
 $(function () {
     'use strict';
+
+    if (SFI_ASYNC == true) return;
+    SFI_ASYNC = true;
+
     let widget = document.createElement('script');
     widget.setAttribute('src', 'https://sophie-kuehn.github.io/sc-fleet-info/fleetInfo.js');
     widget.setAttribute('async', 'async');
