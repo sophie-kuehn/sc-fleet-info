@@ -26,7 +26,7 @@ $(function () {
 
 // MAPPINGS ######################################################################################
 
-    const VERSION = '1.7.4';
+    const VERSION = '1.8.0';
 
     const INSURANCE_TYPE_LTI = 'lti';
     const INSURANCE_TYPE_IAE = 'iae';
@@ -121,6 +121,11 @@ $(function () {
             margin-left: 20px;
         }
 
+
+        .skButtonBox input[type="checkbox"] {
+            margin-left: 5px;
+            vertical-align: text-bottom;
+        }
 
         .skButtonBox select {
             background: #000;
@@ -296,12 +301,14 @@ $(function () {
         insuranceType,
         insuranceDuration,
         gamePackage,
-        image
+        image,
+        pledgeValue
     ) {
         let bestInShowMatch = /\d+\sBest\sin\sShow/gi;
 
         let ship = {
             pledgeNumber: pledgeNumber,
+            pledgeValue: pledgeValue,
             insuranceType: insuranceType,
             insuranceDuration: insuranceDuration,
             image: image,
@@ -370,6 +377,7 @@ $(function () {
             let pledgeImage = $('div.image', $pledge).css('background-image');
             let gamePackage = false;
             let insurances = {};
+            let pledgeValue = $pledge.find('.js-pledge-value').attr('value');
 
             $pledge.find('.without-images .item .title').each((i, elItem) => {
                 let title = $(elItem).text().trim();
@@ -429,7 +437,8 @@ $(function () {
                         insuranceType,
                         insuranceDuration,
                         gamePackage,
-                        image
+                        image,
+                        pledgeValue
                     );
                     return;
                 }
@@ -438,6 +447,7 @@ $(function () {
                     addSkin({
                         title: title,
                         pledgeNumber: pledgeNumber,
+                        pledgeValue: pledgeValue,
                         image: image
                     });
                     return;
@@ -446,6 +456,7 @@ $(function () {
                 addEquipment({
                     title: title,
                     pledgeNumber: pledgeNumber,
+                    pledgeValue: pledgeValue,
                     image: image,
                     type: type
                 });
@@ -472,7 +483,8 @@ $(function () {
                 if (/(Skin|Paint)/i.test(type) || /(Skin|Paint)/i.test(title)) {
                     addSkin({
                         title: title,
-                        pledgeNumber: pledgeNumber,
+                        pledgeNumber: pledgeNumber,    
+                        pledgeValue: pledgeValue,
                         image: image
                     });
                     return;
@@ -488,7 +500,8 @@ $(function () {
 
                     addUpgrade({
                         title: upgradeTitle,
-                        pledgeNumber: pledgeNumber,
+                        pledgeNumber: pledgeNumber, 
+                        pledgeValue: pledgeValue,
                         from: parts[0].trim(),
                         to: parts[1].trim(),
                         image: image
@@ -506,7 +519,8 @@ $(function () {
                         insuranceType,
                         insuranceDuration,
                         gamePackage,
-                        image
+                        image,
+                        pledgeValue
                     );
                     return;
                 }
@@ -521,14 +535,16 @@ $(function () {
                         insuranceType,
                         insuranceDuration,
                         gamePackage,
-                        image
+                        image,
+                        pledgeValue
                     );
                     return;
                 }
 
                 addEquipment({
                     title: title,
-                    pledgeNumber: pledgeNumber,
+                    pledgeNumber: pledgeNumber, 
+                    pledgeValue: pledgeValue,
                     image: image,
                     type: type
                 });
@@ -571,11 +587,21 @@ $(function () {
         return 'https://robertsspaceindustries.com/account/pledges?page=' + pledgeNumber + '&pagesize=1';
     };
 
-    const prepareLink = function(content, href, colored)
+    const getPledgeValueTitle = function(pledgeValue)
+    {
+        return pledgeValue !== undefined ? 'pledge value: ' + pledgeValue : undefined;
+    };
+
+    const prepareLink = function(content, href, title)
     {
         let link = HTML_TPL.link.clone();
         link.attr('href', href);
         link.append(content);
+        
+        if (title !== undefined && title.length > 0) {
+            link.attr('title', title);
+        }
+
         return link;
     };
 
@@ -610,7 +636,8 @@ $(function () {
 
         modelBox.append(prepareLink(
             ship.model,
-            getPledgeLink(ship.pledgeNumber)
+            getPledgeLink(ship.pledgeNumber),
+            getPledgeValueTitle(ship.pledgeValue)
         ));
         infoBox.append(modelBox);
 
@@ -649,7 +676,7 @@ $(function () {
             }
 
             if (info.link !== undefined && info.link.length > 0) {
-                infoLine.append(prepareLink(info.text, info.link));
+                infoLine.append(prepareLink(info.text, info.link, info.linkTitle));
             } else {
                 infoLine.text(info.text);
             }
@@ -703,7 +730,8 @@ $(function () {
                 infos.push({
                     text: text,
                     image: upgrade.image,
-                    link: getPledgeLink(upgrade.pledgeNumber)
+                    link: getPledgeLink(upgrade.pledgeNumber),
+                    linkTitle: getPledgeValueTitle(upgrade.pledgeValue)
                 });
             });
 
@@ -727,7 +755,8 @@ $(function () {
                 infos.push({
                     text: skinName,
                     image: skin.image,
-                    link: getPledgeLink(skin.pledgeNumber)
+                    link: getPledgeLink(skin.pledgeNumber),
+                    linkTitle: getPledgeValueTitle(skin.pledgeValue)
                 });
 
             });
@@ -744,7 +773,8 @@ $(function () {
             let info = {
                 text: text,
                 image: upgrade.image,
-                link: getPledgeLink(upgrade.pledgeNumber)
+                link: getPledgeLink(upgrade.pledgeNumber),
+                linkTitle: getPledgeValueTitle(upgrade.pledgeValue)
             };
 
             if (missingUpgradeShips[upgrade.from] === undefined) {
@@ -773,7 +803,8 @@ $(function () {
             let info = {
                 text: text,
                 image: skin.image,
-                link: getPledgeLink(skin.pledgeNumber)
+                link: getPledgeLink(skin.pledgeNumber),
+                linkTitle: getPledgeValueTitle(skin.pledgeValue)
             };
 
             missingSkins.push(info);
@@ -797,6 +828,7 @@ $(function () {
                 model: text,
                 image: equipmentItem.image,
                 pledgeNumber: equipmentItem.pledgeNumber,
+                pledgeValue: equipmentItem.pledgeValue,
                 manufacturerNames: [equipmentItem.type]
             }, []));
         });
@@ -832,6 +864,18 @@ $(function () {
                 form.change(); 
             }
         });
+
+        return form;
+    };
+
+    const addPageFormCheckbox = function(label, onChange, root = $('.skButtonBox'))
+    {
+        let form = $('<input type="checkbox"></input>');
+        form.change(onChange);
+
+        let wrapper = HTML_TPL.pageButtonAsDiv.clone();
+        wrapper.find('.label').text(label + ':').append(form);
+        root.append(wrapper);
 
         return form;
     };
@@ -1026,3 +1070,4 @@ $(function () {
 
     $('head').append('<style>' + STYLESHEETS + '</style>');
 });
+
