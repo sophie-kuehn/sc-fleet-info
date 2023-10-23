@@ -495,8 +495,10 @@ $(function () {
                     let upgradeTitle = title;
                     upgradeTitle = upgradeTitle.replace("Standard Edition", "");
                     upgradeTitle = upgradeTitle.replace("Warbond Edition", "");
+                    upgradeTitle = upgradeTitle.replace("Standard Upgrade", "");
+                    upgradeTitle = upgradeTitle.replace("Upgrade -", "");
                     upgradeTitle = upgradeTitle.trim();
-                    let parts = upgradeTitle.split('-')[1].split(' to ')
+                    let parts = upgradeTitle.split(' to ');
 
                     addUpgrade({
                         title: upgradeTitle,
