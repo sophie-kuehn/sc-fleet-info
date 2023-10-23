@@ -26,7 +26,7 @@ $(function () {
 
 // MAPPINGS ######################################################################################
 
-    const VERSION = '1.8.0';
+    const VERSION = '1.8.1';
 
     const INSURANCE_TYPE_LTI = 'lti';
     const INSURANCE_TYPE_IAE = 'iae';
@@ -495,8 +495,11 @@ $(function () {
                     let upgradeTitle = title;
                     upgradeTitle = upgradeTitle.replace("Standard Edition", "");
                     upgradeTitle = upgradeTitle.replace("Warbond Edition", "");
+                    upgradeTitle = upgradeTitle.replace("Standard Upgrade", "");
+                    upgradeTitle = upgradeTitle.replace("Standard ...", "");
+                    upgradeTitle = upgradeTitle.replace("Upgrade -", "");
                     upgradeTitle = upgradeTitle.trim();
-                    let parts = upgradeTitle.split('-')[1].split(' to ')
+                    let parts = upgradeTitle.split(' to ');
 
                     addUpgrade({
                         title: upgradeTitle,
