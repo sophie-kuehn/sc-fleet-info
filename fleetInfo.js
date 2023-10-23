@@ -26,7 +26,7 @@ $(function () {
 
 // MAPPINGS ######################################################################################
 
-    const VERSION = '1.8.0';
+    const VERSION = '1.8.1';
 
     const INSURANCE_TYPE_LTI = 'lti';
     const INSURANCE_TYPE_IAE = 'iae';
