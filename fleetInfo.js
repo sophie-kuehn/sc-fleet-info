@@ -26,7 +26,7 @@ $(function () {
 
 // MAPPINGS ######################################################################################
 
-    const VERSION = '1.8.1';
+    const VERSION = '1.8.2';
 
     const INSURANCE_TYPE_LTI = 'lti';
     const INSURANCE_TYPE_IAE = 'iae';
@@ -88,7 +88,10 @@ $(function () {
         'E1 Spirit': ['Spirit'],
         'C8R Pisces': ['C8 Pisces'],
         'C8X Pisces': ['C8 Pisces'],
-        'C8X Pisces Expedition': ['C8 Pisces']
+        'C8X Pisces Expedition': ['C8 Pisces'],
+        'Hercules Starlifter A2': ['A2 Hercules'],
+        'Hercules Starlifter C2': ['C2 Hercules'],
+        'Hercules Starlifter M2': ['M2 Hercules']
     };
 
     // when matching these models, don't use the soft short name matching
