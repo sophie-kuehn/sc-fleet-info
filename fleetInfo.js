@@ -12,7 +12,7 @@ var SFI_DEFAULT_FLEET_GROUP = SFI_DEFAULT_FLEET_GROUP ?? 'none';
 // none, type
 var SFI_DEFAULT_EQUIPMENT_GROUP = SFI_DEFAULT_EQUIPMENT_GROUP ?? 'none';
 
-var SFI_DEFAULT_SHOW_UNASSIGNED_PAINTS_CARD = false;
+var SFI_DEFAULT_SHOW_UNASSIGNED_PAINTS_CARD = SFI_DEFAULT_SHOW_UNASSIGNED_PAINTS_CARD ?? false;
 
 // END OF CONFIGURATION ##########################################################################
 
@@ -28,7 +28,7 @@ $(function () {
 
 // MAPPINGS ######################################################################################
 
-    const VERSION = '1.9.0';
+    const VERSION = '1.9.1';
 
     const INSURANCE_TYPE_LTI = 'lti';
     const INSURANCE_TYPE_IAE = 'iae';
