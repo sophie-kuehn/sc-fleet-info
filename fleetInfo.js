@@ -12,6 +12,8 @@ var SFI_DEFAULT_FLEET_GROUP = SFI_DEFAULT_FLEET_GROUP ?? 'none';
 // none, type
 var SFI_DEFAULT_EQUIPMENT_GROUP = SFI_DEFAULT_EQUIPMENT_GROUP ?? 'none';
 
+var SFI_DEFAULT_SHOW_UNASSIGNED_PAINTS_CARD = false;
+
 // END OF CONFIGURATION ##########################################################################
 
 if (typeof SFI_DONE == undefined) {
@@ -26,7 +28,7 @@ $(function () {
 
 // MAPPINGS ######################################################################################
 
-    const VERSION = '1.8.3';
+    const VERSION = '1.9.0';
 
     const INSURANCE_TYPE_LTI = 'lti';
     const INSURANCE_TYPE_IAE = 'iae';
@@ -818,8 +820,8 @@ $(function () {
         });
 
         if (missingSkins.length > 0) {
-            let box = renderShip({model: "Unassigned Ship Skins"}, missingSkins);
-            box.addClass('skSortBack');
+            let box = renderShip({model: "Unassigned Ship Paints"}, missingSkins);
+            box.addClass('skSortBack').addClass('skUnassignedPaints');
             fleetList.append(box);
         }
     };
@@ -875,9 +877,11 @@ $(function () {
         return form;
     };
 
-    const addPageFormCheckbox = function(label, onChange, root = $('.skButtonBox'))
+    const addPageFormCheckbox = function(label, onChange, defaultToggled = false, root = $('.skButtonBox'))
     {
         let form = $('<input type="checkbox"></input>');
+        form.prop('checked', defaultToggled);  
+
         form.change(onChange);
 
         let wrapper = HTML_TPL.pageButtonAsDiv.clone();
@@ -1027,6 +1031,12 @@ $(function () {
                 let groupOn = (this.value === 'null' ? null : this.value);
                 groupAndSortBoxes(fleetList, groupOn, '.skModelBox');
             });
+            addPageFormCheckbox('Show unassigned paints card', function() {
+                $('.skUnassignedPaints').toggle();
+            }, SFI_DEFAULT_SHOW_UNASSIGNED_PAINTS_CARD);
+            if (SFI_DEFAULT_SHOW_UNASSIGNED_PAINTS_CARD == false) {
+                $('.skUnassignedPaints').toggle();
+            }
         });
     };
 
