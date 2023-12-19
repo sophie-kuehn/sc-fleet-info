@@ -12,6 +12,8 @@ var SFI_DEFAULT_FLEET_GROUP = 'none';
 // none, type
 var SFI_DEFAULT_EQUIPMENT_GROUP = 'none';
 
+var SFI_DEFAULT_SHOW_UNASSIGNED_PAINTS_CARD = false;
+
 // LOAD SCRIPT ###################################################################################
 
 if (typeof SFI_ASYNC == undefined) {
@@ -29,4 +31,3 @@ $(function () {
     widget.setAttribute('async', 'async');
     document.body.appendChild(widget);
 });
-
